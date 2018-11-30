@@ -38,11 +38,15 @@ public class DetailsActivity extends AppCompatActivity {
    marker.title("NKU");
    marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
    map.addMarker(marker);
+
+   //This is how you must declare every notification manager
    final NotificationManager manager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+   //this doesn't have to be here, but it MUST be called before trying to use the manager
    if (!manager.isNotificationPolicyAccessGranted()) {
        Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
        startActivity(intent);
    }
+   
    map.setOnMapClickListener((location) -> {
     try {
      startActivityForResult(new PlacePicker.IntentBuilder().build(this), 2);

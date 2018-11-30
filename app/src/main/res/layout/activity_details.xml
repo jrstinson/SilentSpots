@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:app="http://schemas.android.com/apk/res-auto"
+ xmlns:tools="http://schemas.android.com/tools"
+ android:layout_width="match_parent"
+ android:layout_height="match_parent"
+ tools:context=".DetailsActivity">
+
+ <TextView
+  android:id="@+id/title"
+  android:text="Title: "
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:layout_marginStart="4sp"
+  android:layout_marginTop="4sp"
+  android:layout_marginEnd="4sp"
+  app:layout_constraintEnd_toEndOf="parent"
+  app:layout_constraintStart_toStartOf="parent"
+  app:layout_constraintTop_toTopOf="parent" />
+
+ <TextView
+  android:id="@+id/address"
+  android:text="Address: "
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:layout_marginStart="4sp"
+  android:layout_marginTop="4sp"
+  android:layout_marginEnd="4sp"
+  app:layout_constraintEnd_toEndOf="parent"
+  app:layout_constraintStart_toStartOf="parent"
+  app:layout_constraintTop_toBottomOf="@+id/title" />
+
+ <TextView
+  android:id="@+id/types"
+  android:text="Types: "
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:layout_marginStart="4sp"
+  android:layout_marginTop="4sp"
+  android:layout_marginEnd="4sp"
+  app:layout_constraintEnd_toEndOf="parent"
+  app:layout_constraintStart_toStartOf="parent"
+  app:layout_constraintTop_toBottomOf="@+id/address" />
+
+ <TextView
+  android:id="@+id/radius"
+  android:text="Radius: 1 mile"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:layout_marginStart="4sp"
+  android:layout_marginTop="4sp"
+  android:layout_marginEnd="4sp"
+  app:layout_constraintEnd_toEndOf="parent"
+  app:layout_constraintStart_toStartOf="parent"
+  app:layout_constraintTop_toBottomOf="@+id/types" />
+
+ <TextView
+  android:id="@+id/latitude"
+  android:text="Latitude: "
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:layout_marginStart="4sp"
+  android:layout_marginTop="4sp"
+  android:layout_marginEnd="4sp"
+  app:layout_constraintEnd_toEndOf="parent"
+  app:layout_constraintStart_toStartOf="parent"
+  app:layout_constraintTop_toBottomOf="@+id/radius" />
+
+ <TextView
+  android:id="@+id/longitude"
+  android:text="Longitude: "
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:layout_marginStart="4sp"
+  android:layout_marginTop="4sp"
+  android:layout_marginEnd="4sp"
+  app:layout_constraintEnd_toEndOf="parent"
+  app:layout_constraintStart_toStartOf="parent"
+  app:layout_constraintTop_toBottomOf="@+id/latitude" />
+
+ <fragment
+  android:id="@+id/map"
+  android:name="com.google.android.gms.maps.SupportMapFragment"
+  app:liteMode="true"
+  android:layout_width="0dp"
+  android:layout_height="0dp"
+  android:layout_marginTop="8sp"
+  app:layout_constraintBottom_toBottomOf="parent"
+  app:layout_constraintEnd_toEndOf="parent"
+  app:layout_constraintStart_toStartOf="parent"
+  app:layout_constraintTop_toBottomOf="@+id/longitude" />
+
+</android.support.constraint.ConstraintLayout>

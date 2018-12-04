@@ -2,7 +2,9 @@ package csc415.finalProject.SilentSpots;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -52,6 +55,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class ListActivity extends AppCompatActivity {
@@ -93,9 +97,49 @@ public class ListActivity extends AppCompatActivity {
             });
         }
         Log.println(Log.WARN, "test", new Integer(locations.size()).toString());
+
         locationsview = findViewById(R.id.locations);
         locationsview.setAdapter(m);
         locationsview.setLayoutManager(new LinearLayoutManager(this));
+        Intent details = new Intent(this, DetailsActivity.class);
+        Context context = this;
+        locationsview.addOnItemTouchListener(new RecyclerItemClickListener(this, locationsview, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+
+                details.putExtra("location", locations.get(position).getId());
+                startActivity(details);
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                builder.setTitle("Remove Location");
+                builder.setMessage("Are you sure?");
+
+                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int which) {
+                        eraseLocation(locations.get(position), context);
+                        m.notifyDataSetChanged();
+                        dialog.dismiss();
+                    }
+                });
+
+                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        // Do nothing
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        }));
 
     }
 
@@ -144,6 +188,39 @@ public class ListActivity extends AppCompatActivity {
 
     }
 
+    public void eraseLocation(Place place, Context ctx) {
+        ArrayList<String> lines = new ArrayList<>();
+
+        try {
+            locations.remove(place);
+
+            String path = ctx.getFilesDir().getAbsolutePath() + "/";
+
+            try {
+                File file = new File(path + fileName);
+                if (file.exists()) {
+                    final Scanner reader = new Scanner(new FileInputStream(file), "UTF-8");
+                    while (reader.hasNextLine()) {
+                        lines.add(reader.nextLine());
+                    }
+                    reader.close();
+                    lines.remove(place.getId());
+                    final BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+                    for (final String line : lines) writer.write(line);
+                    writer.flush();
+                    writer.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        } catch (Exception e) {
+            Log.println(Log.WARN, "test", "File Not Found");
+        }
+
+    }
+
     public static ArrayList<String> readFile(Context ctx) {
         String path = ctx.getFilesDir().getAbsolutePath() + "/";
         ArrayList<String> lines = new ArrayList<>();
@@ -178,6 +255,7 @@ public class ListActivity extends AppCompatActivity {
 class itemadapter extends RecyclerView.Adapter<itemadapter.holder> {
     ArrayList<Place> locations;
     LayoutInflater inflater;
+
 
     public itemadapter(Context context, ArrayList<Place> locations) {
         inflater = LayoutInflater.from(context);

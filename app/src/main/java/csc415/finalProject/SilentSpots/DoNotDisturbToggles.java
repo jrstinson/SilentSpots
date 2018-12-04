@@ -32,9 +32,6 @@ TODO: figure out how to allow messages and calls from starred contacts at the sa
  */
 
 
-
-
-
 package csc415.finalProject.SilentSpots;
 
 import android.annotation.TargetApi;
@@ -47,53 +44,49 @@ class DoNotDisturbToggles {
     @TargetApi(23)
     static void fullDND(boolean isChecked, NotificationManager manager) {
 
-        if(isChecked) {
+        if (isChecked) {
 
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
-        }
-        else {
+        } else {
 
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
         }
     }
 
     @TargetApi(23)
-    static void alarmsDND(boolean isChecked, NotificationManager manager){
+    static void alarmsDND(boolean isChecked, NotificationManager manager) {
 
         NotificationManager.Policy policy = new NotificationManager.Policy(NotificationManager.Policy.PRIORITY_CATEGORY_ALARMS, 0, 0);
         if (isChecked) {
             manager.setNotificationPolicy(policy);
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
-        }
-        else{
+        } else {
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
         }
     }
 
     @TargetApi(23)
-    static void messageOnly(boolean isChecked, NotificationManager manager){
+    static void messageOnly(boolean isChecked, NotificationManager manager) {
 
         NotificationManager.Policy policy = new NotificationManager.Policy(NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES, 0, NotificationManager.Policy.PRIORITY_SENDERS_ANY);
 
         if (isChecked) {
             manager.setNotificationPolicy(policy);
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
-        }
-        else{
+        } else {
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
         }
     }
 
     @TargetApi(28)
-    static void mediaMode(boolean isChecked, NotificationManager manager){
+    static void mediaMode(boolean isChecked, NotificationManager manager) {
 
         NotificationManager.Policy policy = new NotificationManager.Policy(NotificationManager.Policy.PRIORITY_CATEGORY_MEDIA, 0, 0);
 
-        if(isChecked) {
+        if (isChecked) {
             manager.setNotificationPolicy(policy);
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
-        }
-        else{
+        } else {
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
         }
     }
@@ -101,16 +94,13 @@ class DoNotDisturbToggles {
     @TargetApi(23)
     static void starredOnly(boolean isChecked, NotificationManager manager) {
         NotificationManager.Policy policy = new NotificationManager.Policy(NotificationManager.Policy.PRIORITY_CATEGORY_CALLS, NotificationManager.Policy.PRIORITY_SENDERS_STARRED, NotificationManager.Policy.PRIORITY_SENDERS_STARRED);
-        if(isChecked) {
+        if (isChecked) {
             manager.setNotificationPolicy(policy);
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
-        }
-        else{
+        } else {
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
         }
     }
-
-
 
 
 }

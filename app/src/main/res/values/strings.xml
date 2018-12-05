@@ -3,4 +3,10 @@
     <string name="title">Title: </string>
     <string name="address">Address: </string>
     <string name="radius">Radius: </string>
+    <string name="noDND">None</string>
+    <string name="optionsString">Do Not Disturb Options:</string>
+    <string name="fullDND">Full Do Not Disturb</string>
+    <string name="messages_only">Messages Only</string>
+    <string name="on_with_alarms">On with Alarms</string>
+    <string name="starred_callers_only">Starred Callers Only</string>
 </resources>

@@ -3,6 +3,7 @@ package csc415.finalProject.SilentSpots;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -15,8 +16,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.app.NotificationManager;
+import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
-
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBufferResponse;
@@ -32,10 +35,18 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DetailsActivity extends AppCompatActivity {
     GoogleMap map; // noninteractive, displays single marker
     TextView titleView;
     TextView addressView;
+    Map<String, String> idPlusDND = new HashMap<String, String>();
+    RadioGroup rg;
+    //Placeholder variables for what will be placed in firebase
+    String PID;
+    String DNDSetting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +55,23 @@ public class DetailsActivity extends AppCompatActivity {
         // place id passed as extra
         // get place details from Firebase or wherever if present,
         // get the place default info from Google Maps otherwise
+
+        rg = findViewById(R.id.radioGroup);
+
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton radioButton = group.findViewById(checkedId);
+                if(null != radioButton){
+                    Intent ci = getIntent();
+                    PID = ci.getStringExtra("location");
+                    DNDSetting = radioButton.getTag().toString();
+                    Log.println(Log.WARN, "test", DNDSetting);
+                    Log.println(Log.WARN, "test", PID);
+                }
+            }
+        });
+
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(map -> {
             this.map = map;
@@ -81,7 +109,6 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             });
         });
-
 
     }
 
@@ -124,4 +151,7 @@ public class DetailsActivity extends AppCompatActivity {
             // update current details activity
         }
     }
+
+
+
 }

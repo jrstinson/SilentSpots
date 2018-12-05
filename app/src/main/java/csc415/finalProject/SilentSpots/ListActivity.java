@@ -184,9 +184,9 @@ public class ListActivity extends AppCompatActivity {
      rule.title = value2;
      rule.address = (String)place.getAddress();
      rule.radius = value;
-     rule.setting = "silent";
+     rule.setting = "None";
      rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
-     firestore.collection("rules").add(rule);
+     firestore.collection("rules").document(rule.place).set(rule);
      startActivity(details);
     }
    });

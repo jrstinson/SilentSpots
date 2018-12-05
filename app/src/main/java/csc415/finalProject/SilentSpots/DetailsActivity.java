@@ -73,7 +73,7 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         firestore = FirebaseFirestore.getInstance();
-        Query query = firestore.collection("rules").orderBy("title");
+
         // place id passed as extra
         // get place details from Firebase or wherever if present,
         // get the place default info from Google Maps otherwise
@@ -217,9 +217,9 @@ public class DetailsActivity extends AppCompatActivity {
                     rule.title = value2;
                     rule.address = (String)place.getAddress();
                     rule.radius = value;
-                    rule.setting = "silent";
+                    rule.setting = "None";
                     rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
-                    firestore.collection("rules").add(rule);
+                    firestore.collection("rules").document(rule.place).set(rule);
                     startActivity(details);
                 }
             });

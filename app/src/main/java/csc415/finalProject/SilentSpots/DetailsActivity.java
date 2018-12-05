@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
+import android.support.constraint.solver.widgets.Snapshot;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.app.NotificationManager;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.google.android.gms.location.places.GeoDataClient;
@@ -31,11 +34,30 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
+import com.google.firebase.firestore.Transaction;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 public class DetailsActivity extends AppCompatActivity {
     GoogleMap map; // noninteractive, displays single marker
     TextView titleView;
     TextView addressView;
+    FirebaseFirestore firestore;
+    RadioGroup rg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +66,57 @@ public class DetailsActivity extends AppCompatActivity {
         // place id passed as extra
         // get place details from Firebase or wherever if present,
         // get the place default info from Google Maps otherwise
+        rg = findViewById(R.id.radioGroup);
+        firestore = FirebaseFirestore.getInstance();
+        Intent startingIntent = getIntent();
+        DocumentReference docRef = firestore.collection("rules").document(startingIntent.getStringExtra("location"));
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    switch((String) document.get("setting")){
+                        case "None":
+                            rg.check(R.id.radio_none);
+                            break;
+                        case "Full":
+                            rg.check(R.id.radioFull);
+                            break;
+                        case "Starred":
+                            rg.check(R.id.radioStarred);
+                            break;
+                        case "Messages":
+                            rg.check(R.id.radioMessage);
+                            break;
+                        case "Alarms":
+                            rg.check(R.id.radioAlarms);
+                            break;
+                    }
+                }
+            }
+        });
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton radioButton = group.findViewById(checkedId);
+                if (null != radioButton) {
+                    firestore.runTransaction(new Transaction.Function<Void>() {
+                        @Override
+                        public Void apply(Transaction transaction) throws FirebaseFirestoreException {
+                            transaction.update(docRef, "setting", radioButton.getTag());
+                            return null;
+                        }
+                    });
+                }
+            }
+        });
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(map -> {
             this.map = map;
             // placeholder example, set from current place id
             titleView = findViewById(R.id.title);
             addressView = findViewById(R.id.address);
-            Intent startingIntent = getIntent();
+
             String id = startingIntent.getStringExtra("location");
             GeoDataClient mGeoDataClient = Places.getGeoDataClient(this);
             mGeoDataClient.getPlaceById(id).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
@@ -65,8 +131,8 @@ public class DetailsActivity extends AppCompatActivity {
                         marker.title(myPlace.getName().toString());
                         marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
                         map.addMarker(marker);
-                        titleView.append(myPlace.getName());
-                        addressView.append(myPlace.getAddress());
+                        titleView.append(" "+myPlace.getName());
+                        addressView.append(" "+myPlace.getAddress());
                     } else {
                         Log.println(Log.WARN, "test", "ID not found");
                     }
@@ -81,8 +147,6 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             });
         });
-
-
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

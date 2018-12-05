@@ -200,7 +200,7 @@ public class DetailsActivity extends AppCompatActivity {
 
             //Dialogue box for Radius and Title
             AlertDialog.Builder radius = new AlertDialog.Builder(DetailsActivity.this);
-            radius.setMessage("Set Radius and Title")
+            radius.setMessage("Set Title and Radius")
                     .setTitle("Input");
             LinearLayout layout = new LinearLayout(this);
             layout.setOrientation(LinearLayout.VERTICAL);
@@ -208,8 +208,8 @@ public class DetailsActivity extends AppCompatActivity {
             input.setHint("Radius");
             final EditText input2 = new EditText(this);
             input2.setHint("Title");
-            layout.addView(input);
             layout.addView(input2);
+            layout.addView(input);
             radius.setView(layout);
 
             radius.setPositiveButton("Ok", new DialogInterface.OnClickListener() {

@@ -22,6 +22,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.app.NotificationManager;
 
@@ -42,6 +44,7 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.api.Distribution;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -145,17 +148,45 @@ public class ListActivity extends AppCompatActivity {
  protected void onActivityResult(int request, int result, Intent data) {
   if (request == 1 && result == RESULT_OK) {
    Place place = PlacePicker.getPlace(this, data);
-   Rule rule = new Rule();
-   rule.place = place.getId();
-   rule.title = (String)place.getName();
-   rule.address = (String)place.getAddress();
-   rule.radius = 0;
-   rule.setting = "silent";
-   rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
-   firestore.collection("rules").add(rule);
    Intent details = new Intent(this, DetailsActivity.class);
    details.putExtra("location", place.getId());
-   startActivity(details);
+
+   //Dialogue box for Radius and Title
+   AlertDialog.Builder radius = new AlertDialog.Builder(ListActivity.this);
+   radius.setMessage("Set Radius and Title")
+           .setTitle("Input");
+   LinearLayout layout = new LinearLayout(this);
+   layout.setOrientation(LinearLayout.VERTICAL);
+   final EditText input = new EditText(this);
+   input.setHint("Radius");
+   final EditText input2 = new EditText(this);
+   input2.setHint("Title");
+   layout.addView(input);
+   layout.addView(input2);
+   radius.setView(layout);
+
+   radius.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+    public void onClick(DialogInterface dialog, int whichButton) {
+     double value = Double.valueOf(input.getText().toString());
+     String value2 = input2.getText().toString();
+     Rule rule = new Rule();
+     rule.place = place.getId();
+     rule.title = value2;
+     rule.address = (String)place.getAddress();
+     rule.radius = value;
+     rule.setting = "silent";
+     rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
+     firestore.collection("rules").add(rule);
+     startActivity(details);
+    }
+   });
+
+   radius.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+    public void onClick(DialogInterface dialog, int whichButton) {
+     // Canceled.
+    }
+   });
+   radius.show();
   }
  }
 }

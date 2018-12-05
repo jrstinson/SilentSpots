@@ -65,6 +65,7 @@ public class DetailsActivity extends AppCompatActivity {
     GoogleMap map; // noninteractive, displays single marker
     TextView titleView;
     TextView addressView;
+    TextView radiusView;
     FirebaseFirestore firestore;
     RadioGroup rg;
 
@@ -103,6 +104,9 @@ public class DetailsActivity extends AppCompatActivity {
                             rg.check(R.id.radioAlarms);
                             break;
                     }
+                    titleView.append(" "+document.get("title"));
+                    addressView.append(" "+document.get("address"));
+                    radiusView.append(" "+document.get("radius"));
                 }
             }
         });
@@ -127,6 +131,7 @@ public class DetailsActivity extends AppCompatActivity {
             // placeholder example, set from current place id
             titleView = findViewById(R.id.title);
             addressView = findViewById(R.id.address);
+            radiusView = findViewById(R.id.radius);
 
             String id = startingIntent.getStringExtra("location");
             GeoDataClient mGeoDataClient = Places.getGeoDataClient(this);
@@ -142,8 +147,7 @@ public class DetailsActivity extends AppCompatActivity {
                         marker.title(myPlace.getName().toString());
                         marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
                         map.addMarker(marker);
-                        titleView.append(" "+myPlace.getName());
-                        addressView.append(" "+myPlace.getAddress());
+
                     } else {
                         Log.println(Log.WARN, "test", "ID not found");
                     }

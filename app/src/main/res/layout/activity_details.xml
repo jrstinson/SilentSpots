@@ -59,5 +59,61 @@
      android:layout_height="wrap_content"
      android:orientation="horizontal"
      app:layout_constraintGuide_percent="0.4" />
+ <RadioGroup
+     android:id="@+id/radioGroup"
+     android:layout_width="286dp"
+     android:layout_height="120dp"
+     android:layout_marginStart="28dp"
+     android:layout_marginTop="8dp"
+     app:layout_constraintBottom_toTopOf="@+id/map"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toTopOf="parent"
+     app:layout_constraintVertical_bias="1.0">
+
+  <RadioButton
+      android:id="@+id/radio_none"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:gravity="center"
+      android:tag="None"
+      android:text="@string/no_dnd" />
+
+  <RadioButton
+      android:id="@+id/radioAlarms"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:gravity="center"
+      android:tag="Alarms"
+      android:text="@string/on_with_alarms" />
+
+  <RadioButton
+      android:id="@+id/radioStarred"
+      android:tag="Starred"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:gravity="center"
+      android:text="@string/starred_callers_only" />
+
+  <RadioButton
+      android:id="@+id/radioMessage"
+      android:tag="Messages"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="@string/messages_only" />
+
+  <RadioButton
+      android:id="@+id/radioFull"
+      android:tag="Full"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="@string/fullDND" />
+
+
+ </RadioGroup>
 
 </android.support.constraint.ConstraintLayout>

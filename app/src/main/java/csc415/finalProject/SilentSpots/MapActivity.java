@@ -1,7 +1,9 @@
 package csc415.finalProject.SilentSpots;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
@@ -11,6 +13,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.app.NotificationManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
@@ -20,16 +24,20 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 
 public class MapActivity extends AppCompatActivity {
     GoogleMap map;
     ArrayList<Place> locations = new ArrayList<>();
+    FirebaseFirestore firestore;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        firestore = FirebaseFirestore.getInstance();
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(map -> {
             this.map = map;
@@ -81,10 +89,45 @@ public class MapActivity extends AppCompatActivity {
     protected void onActivityResult(int request, int result, Intent data) {
         if (request == 1 && result == RESULT_OK) {
             Place place = PlacePicker.getPlace(this, data);
-            locations.add(place);
             Intent details = new Intent(this, DetailsActivity.class);
             details.putExtra("location", place.getId());
-            startActivity(details);
+
+            //Dialogue box for Radius and Title
+            AlertDialog.Builder radius = new AlertDialog.Builder(MapActivity.this);
+            radius.setMessage("Set Radius and Title")
+                    .setTitle("Input");
+            LinearLayout layout = new LinearLayout(this);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            final EditText input = new EditText(this);
+            input.setHint("Radius");
+            final EditText input2 = new EditText(this);
+            input2.setHint("Title");
+            layout.addView(input);
+            layout.addView(input2);
+            radius.setView(layout);
+
+            radius.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    double value = Double.valueOf(input.getText().toString());
+                    String value2 = input2.getText().toString();
+                    Rule rule = new Rule();
+                    rule.place = place.getId();
+                    rule.title = value2;
+                    rule.address = (String)place.getAddress();
+                    rule.radius = value;
+                    rule.setting = "silent";
+                    rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
+                    firestore.collection("rules").add(rule);
+                    startActivity(details);
+                }
+            });
+
+            radius.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    // Canceled.
+                }
+            });
+            radius.show();
         }
     }
 }

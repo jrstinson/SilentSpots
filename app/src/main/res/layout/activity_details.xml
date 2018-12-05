@@ -7,87 +7,113 @@
  tools:context=".DetailsActivity">
 
  <TextView
-  android:id="@+id/title"
-  android:text="Title: "
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:layout_marginStart="4sp"
-  android:layout_marginTop="4sp"
-  android:layout_marginEnd="4sp"
-  app:layout_constraintEnd_toEndOf="parent"
-  app:layout_constraintStart_toStartOf="parent"
-  app:layout_constraintTop_toTopOf="parent" />
+     android:id="@+id/title"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="4sp"
+     android:layout_marginTop="16dp"
+     android:layout_marginEnd="4sp"
+     android:text="@string/title"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintHorizontal_bias="0.063"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toTopOf="parent" />
 
  <TextView
-  android:id="@+id/address"
-  android:text="Address: "
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:layout_marginStart="4sp"
-  android:layout_marginTop="4sp"
-  android:layout_marginEnd="4sp"
-  app:layout_constraintEnd_toEndOf="parent"
-  app:layout_constraintStart_toStartOf="parent"
-  app:layout_constraintTop_toBottomOf="@+id/title" />
+     android:id="@+id/address"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginTop="16dp"
+     android:text="@string/address"
+
+     app:layout_constraintStart_toStartOf="@id/title"
+     app:layout_constraintTop_toBottomOf="@+id/title" />
 
  <TextView
-  android:id="@+id/types"
-  android:text="Types: "
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:layout_marginStart="4sp"
-  android:layout_marginTop="4sp"
-  android:layout_marginEnd="4sp"
-  app:layout_constraintEnd_toEndOf="parent"
-  app:layout_constraintStart_toStartOf="parent"
-  app:layout_constraintTop_toBottomOf="@+id/address" />
-
- <TextView
-  android:id="@+id/radius"
-  android:text="Radius: 1 mile"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:layout_marginStart="4sp"
-  android:layout_marginTop="4sp"
-  android:layout_marginEnd="4sp"
-  app:layout_constraintEnd_toEndOf="parent"
-  app:layout_constraintStart_toStartOf="parent"
-  app:layout_constraintTop_toBottomOf="@+id/types" />
-
- <TextView
-  android:id="@+id/latitude"
-  android:text="Latitude: "
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:layout_marginStart="4sp"
-  android:layout_marginTop="4sp"
-  android:layout_marginEnd="4sp"
-  app:layout_constraintEnd_toEndOf="parent"
-  app:layout_constraintStart_toStartOf="parent"
-  app:layout_constraintTop_toBottomOf="@+id/radius" />
-
- <TextView
-  android:id="@+id/longitude"
-  android:text="Longitude: "
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:layout_marginStart="4sp"
-  android:layout_marginTop="4sp"
-  android:layout_marginEnd="4sp"
-  app:layout_constraintEnd_toEndOf="parent"
-  app:layout_constraintStart_toStartOf="parent"
-  app:layout_constraintTop_toBottomOf="@+id/latitude" />
+     android:id="@+id/radius"
+     android:layout_width="wrap_content"
+     android:layout_height="0dp"
+     android:layout_marginTop="20dp"
+     android:text="@string/radius"
+     app:layout_constraintStart_toStartOf="@id/title"
+     app:layout_constraintTop_toBottomOf="@id/address" />
 
  <fragment
-  android:id="@+id/map"
-  android:name="com.google.android.gms.maps.SupportMapFragment"
-  app:liteMode="true"
-  android:layout_width="0dp"
-  android:layout_height="0dp"
-  android:layout_marginTop="8sp"
-  app:layout_constraintBottom_toBottomOf="parent"
-  app:layout_constraintEnd_toEndOf="parent"
-  app:layout_constraintStart_toStartOf="parent"
-  app:layout_constraintTop_toBottomOf="@+id/longitude" />
+     android:id="@+id/map"
+     android:name="com.google.android.gms.maps.SupportMapFragment"
+     android:layout_width="0dp"
+     android:layout_height="0dp"
+     android:layout_marginBottom="8dp"
+     android:layout_marginEnd="8dp"
+     android:layout_marginStart="8dp"
+     android:layout_marginTop="8dp"
+     app:layout_constraintBottom_toBottomOf="parent"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@id/guideline"
+     app:liteMode="true" />
+
+ <android.support.constraint.Guideline
+     android:id="@+id/guideline"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:orientation="horizontal"
+     app:layout_constraintGuide_percent="0.4" />
+ <RadioGroup
+     android:id="@+id/radioGroup"
+     android:layout_width="286dp"
+     android:layout_height="120dp"
+     android:layout_marginStart="28dp"
+     android:layout_marginTop="8dp"
+     app:layout_constraintBottom_toTopOf="@+id/map"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toTopOf="parent"
+     app:layout_constraintVertical_bias="1.0">
+
+  <RadioButton
+      android:id="@+id/radio_none"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:gravity="center"
+      android:tag="None"
+      android:text="@string/no_dnd" />
+
+  <RadioButton
+      android:id="@+id/radioAlarms"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:gravity="center"
+      android:tag="Alarms"
+      android:text="@string/on_with_alarms" />
+
+  <RadioButton
+      android:id="@+id/radioStarred"
+      android:tag="Starred"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:gravity="center"
+      android:text="@string/starred_callers_only" />
+
+  <RadioButton
+      android:id="@+id/radioMessage"
+      android:tag="Messages"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="@string/messages_only" />
+
+  <RadioButton
+      android:id="@+id/radioFull"
+      android:tag="Full"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:text="@string/fullDND" />
+
+
+ </RadioGroup>
 
 </android.support.constraint.ConstraintLayout>

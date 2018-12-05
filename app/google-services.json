@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "643022309181",
+    "firebase_url": "https://silence-locations.firebaseio.com",
+    "project_id": "silence-locations",
+    "storage_bucket": "silence-locations.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:643022309181:android:c1f0f09aa42eba16",
+        "android_client_info": {
+          "package_name": "com.google.firebase.example.fireeats"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "643022309181-ua410g0m5hhtejhb869d3k271p6m3gma.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt4MhvzjJWoVebCHeDCHhDbsXfofc24OU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:643022309181:android:60a73cc4f5bde823",
+        "android_client_info": {
+          "package_name": "csc415.finalProject.SilentSpots"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "643022309181-ua410g0m5hhtejhb869d3k271p6m3gma.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt4MhvzjJWoVebCHeDCHhDbsXfofc24OU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

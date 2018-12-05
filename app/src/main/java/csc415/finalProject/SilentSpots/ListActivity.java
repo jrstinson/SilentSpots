@@ -25,6 +25,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.app.NotificationManager;
 
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -40,6 +42,10 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -59,234 +65,113 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class ListActivity extends AppCompatActivity {
-    public static String fileName = "userLocationIDs.txt";
-    RecyclerView locationsview;
-    ArrayList<Place> locations = new ArrayList<>();
+ RecyclerView locationsview;
+ FirebaseFirestore firestore;
+ protected void onCreate(Bundle savedInstanceState) {
+  super.onCreate(savedInstanceState);
+  setContentView(R.layout.activity_list);
+  locationsview = findViewById(R.id.locations);
+  Intent details = new Intent(this, DetailsActivity.class);
 
-    // Place.getName, getAddress, getId, getLatLng, getPlaceTypes, getViewport
-    // NKU, HH KY USA, id?, { latitude: 100, longitude: -100 }, [ Place.TYPE_UNIVERSITY ], LatLangBounds
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //This is how you must declare every notification manager
-        final NotificationManager manager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        //this doesn't have to be here, but it MUST be called before trying to use the manager
-        if (!manager.isNotificationPolicyAccessGranted()) {
-            Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-            startActivity(intent);
-        }
-        setContentView(R.layout.activity_list);
-        ArrayList<String> currentLocations = readFile(this);
-        itemadapter m = new itemadapter(this, locations);
-        //TODO Populate the list of locations. Requires findPlaceByID, which is a huge pain in the ass but I'll figure it out
-        GeoDataClient mGeoDataClient = Places.getGeoDataClient(this);
-        for (int i = 0; i < currentLocations.size(); i++) {
-            mGeoDataClient.getPlaceById(currentLocations.get(i)).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
-                @Override
-                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
-                    if (task.isSuccessful()) {
-                        PlaceBufferResponse places = task.getResult();
-                        Place myPlace = places.get(0);
-                        locations.add(myPlace);
-                        Log.println(Log.WARN, "test", myPlace.getId());
-                        m.notifyDataSetChanged();
-                    } else {
-                        Log.println(Log.WARN, "test", "ID not found");
-                    }
+  firestore = FirebaseFirestore.getInstance();
+  Query query = firestore.collection("rules").orderBy("title");
+  FirestoreRecyclerOptions<Rule> options = new FirestoreRecyclerOptions.Builder<Rule>()
+   .setQuery(query, Rule.class).build();
 
-                }
-            });
-        }
-        Log.println(Log.WARN, "test", new Integer(locations.size()).toString());
+  FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Rule, Holder>(options) {
+   @Override public void onBindViewHolder(Holder holder, int position, Rule rule) {
+    holder.itemtext.setText(rule.title);
+    holder.itemtext.setOnClickListener(view -> {
+     String id = getSnapshots().getSnapshot(holder.getAdapterPosition()).getId();
+     details.putExtra("location", id);
+     startActivity(details);
+    });
+    holder.itemtext.setOnLongClickListener(view -> {
+     AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemtext.getContext());
+     builder.setTitle("Remove Location Rule");
+     builder.setMessage("Are you sure?");
+     builder.setPositiveButton("REMOVE", (dialog, which) -> {
+      String id = getSnapshots().getSnapshot(holder.getAdapterPosition()).getId();
+      firestore.collection("rules").document(id).delete();
+      dialog.dismiss();
+     });
+     builder.setNegativeButton("CANCEL", (dialog, which) -> {
+      dialog.dismiss();
+     });
+     builder.create().show();
+     return(true);
+    });
+   }
+   @Override public Holder onCreateViewHolder(ViewGroup group, int type) {
+    return(new Holder(LayoutInflater.from(group.getContext()).inflate(R.layout.item, group, false)));
+   }
+  };
+  adapter.startListening();
+  locationsview.setAdapter(adapter);
 
-        locationsview = findViewById(R.id.locations);
-        locationsview.setAdapter(m);
-        locationsview.setLayoutManager(new LinearLayoutManager(this));
-        Intent details = new Intent(this, DetailsActivity.class);
-        Context context = this;
-        locationsview.addOnItemTouchListener(new RecyclerItemClickListener(this, locationsview, new RecyclerItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-
-                details.putExtra("location", locations.get(position).getId());
-                startActivity(details);
-            }
-
-            @Override
-            public void onItemLongClick(View view, int position) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                builder.setTitle("Remove Location");
-                builder.setMessage("Are you sure?");
-
-                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int which) {
-                        eraseLocation(locations.get(position), context);
-                        m.notifyDataSetChanged();
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        // Do nothing
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog alert = builder.create();
-                alert.show();
-            }
-        }));
-
-    }
-
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        menu.getItem(1).setTitle("Map");
-        menu.getItem(1).setIcon(R.drawable.map);
-        return (true);
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.add) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            } else {
-                try {
-                    startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
-                } catch (Exception ignored) {
-                }
-            }
-            return (true);
-        } else if (id == R.id.view) {
-            startActivity(new Intent(this, MapActivity.class));
-            return (true);
-        } else {
-            return (super.onOptionsItemSelected(item));
-        }
-    }
-
-    public void writeToFile(Place place, Context ctx) {
-        try {
-            FileOutputStream fileOutputStream = openFileOutput(fileName, Context.MODE_APPEND);
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
-            bw.append(place.getId());
-            bw.newLine();
-            bw.flush();
-            fileOutputStream.flush();
-            bw.close();
-            fileOutputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void eraseLocation(Place place, Context ctx) {
-        ArrayList<String> lines = new ArrayList<>();
-
-        try {
-            locations.remove(place);
-
-            String path = ctx.getFilesDir().getAbsolutePath() + "/";
-
-            try {
-                File file = new File(path + fileName);
-                if (file.exists()) {
-                    final Scanner reader = new Scanner(new FileInputStream(file), "UTF-8");
-                    while (reader.hasNextLine()) {
-                        lines.add(reader.nextLine());
-                    }
-                    reader.close();
-                    lines.remove(place.getId());
-                    final BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
-                    for (final String line : lines) writer.write(line);
-                    writer.flush();
-                    writer.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-        } catch (Exception e) {
-            Log.println(Log.WARN, "test", "File Not Found");
-        }
-
-    }
-
-    public static ArrayList<String> readFile(Context ctx) {
-        String path = ctx.getFilesDir().getAbsolutePath() + "/";
-        ArrayList<String> lines = new ArrayList<>();
-        String line;
-        try {
-            File file = new File(path + fileName);
-            if (file.exists()) {
-                FileInputStream is = new FileInputStream(file);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                while ((line = reader.readLine()) != null) lines.add(line);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return lines;
-    }
-
-    protected void onActivityResult(int request, int result, Intent data) {
-        if (request == 1 && result == RESULT_OK) {
-            Place place = PlacePicker.getPlace(this, data);
-            locations.add(place);
-            writeToFile(place, this);
-            locationsview.getAdapter().notifyItemInserted(locations.size());
-            Intent details = new Intent(this, DetailsActivity.class);
-            details.putExtra("location", place.getId());
-            startActivity(details);
-        }
-    }
+  locationsview.setLayoutManager(new LinearLayoutManager(this));
+  Context context = this;
+  NotificationManager manager = (NotificationManager)getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+  if(manager.isNotificationPolicyAccessGranted() == false) {
+   startActivity(new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
+  }
+ }
+ public boolean onCreateOptionsMenu(Menu menu) {
+  getMenuInflater().inflate(R.menu.menu, menu);
+  menu.getItem(1).setTitle("Map");
+  menu.getItem(1).setIcon(R.drawable.map);
+  return (true);
+ }
+ public boolean onOptionsItemSelected(MenuItem item) {
+  int id = item.getItemId();
+  if (id == R.id.add) {
+   if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+    != PackageManager.PERMISSION_GRANTED) {
+    ActivityCompat.requestPermissions(this, new String[]{
+     Manifest.permission.ACCESS_FINE_LOCATION }, 1);
+   } else {
+    try {
+     startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
+    } catch (Exception ignored) { }
+   }
+   return (true);
+  } else if (id == R.id.view) {
+   startActivity(new Intent(this, MapActivity.class));
+   return (true);
+  } else {
+   return (super.onOptionsItemSelected(item));
+  }
+ }
+ protected void onActivityResult(int request, int result, Intent data) {
+  if (request == 1 && result == RESULT_OK) {
+   Place place = PlacePicker.getPlace(this, data);
+   Rule rule = new Rule();
+   rule.place = place.getId();
+   rule.title = (String)place.getName();
+   rule.address = (String)place.getAddress();
+   rule.radius = 0;
+   rule.setting = "silent";
+   rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
+   firestore.collection("rules").add(rule);
+   Intent details = new Intent(this, DetailsActivity.class);
+   details.putExtra("location", place.getId());
+   startActivity(details);
+  }
+ }
 }
 
-class itemadapter extends RecyclerView.Adapter<itemadapter.holder> {
-    ArrayList<Place> locations;
-    LayoutInflater inflater;
-
-
-    public itemadapter(Context context, ArrayList<Place> locations) {
-        inflater = LayoutInflater.from(context);
-        this.locations = locations;
-    }
-
-    @NonNull
-    public itemadapter.holder onCreateViewHolder(@NonNull ViewGroup parent, int type) {
-        return (new holder(inflater.inflate(R.layout.item, parent, false), this));
-    }
-
-    public void onBindViewHolder(@NonNull itemadapter.holder holder, int position) {
-        holder.itemtext.setText(locations.get(position).getName());
-    }
-
-    public int getItemCount() {
-        return (locations.size());
-    }
-
-    class holder extends RecyclerView.ViewHolder {
-        TextView itemtext;
-        itemadapter adapter;
-
-        holder(View itemview, itemadapter adapter) {
-            super(itemview);
-            itemtext = itemview.findViewById(R.id.item);
-            this.adapter = adapter;
-            itemview.setOnClickListener(view -> {
-                int index = getLayoutPosition();
-                // start details activity for locations[index]
-            });
-        }
-    }
+class Rule {
+ String title;
+ String address;
+ String place;
+ double radius;
+ GeoPoint coordinates;
+ String setting;
+}
+class Holder extends RecyclerView.ViewHolder {
+ TextView itemtext;
+ Holder(View itemview) {
+  super(itemview);
+  itemtext = itemview.findViewById(R.id.item);
+ }
 }

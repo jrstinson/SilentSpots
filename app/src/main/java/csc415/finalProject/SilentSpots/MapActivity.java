@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -51,6 +52,7 @@ public class MapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         firestore = FirebaseFirestore.getInstance();
         fireauth = FirebaseAuth.getInstance();
@@ -96,12 +98,16 @@ public class MapActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         menu.getItem(1).setTitle("List");
-        menu.getItem(1).setIcon(R.drawable.list);
+        menu.removeItem(R.id.view);
         return (true);
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        if(id == android.R.id.home) {
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
         if (id == R.id.add) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -129,7 +135,7 @@ public class MapActivity extends AppCompatActivity {
 
    //Dialogue box for Radius and Title
    AlertDialog.Builder radius = new AlertDialog.Builder(MapActivity.this);
-   radius.setMessage("Set Title and Radius")
+   radius.setMessage("Set Title and Radius in meters")
     .setTitle("Input");
    LinearLayout layout = new LinearLayout(this);
    layout.setOrientation(LinearLayout.VERTICAL);

@@ -235,7 +235,7 @@ public class ListActivity extends AppCompatActivity {
 
             //Dialogue box for Radius and Title
             AlertDialog.Builder radius = new AlertDialog.Builder(ListActivity.this);
-            radius.setMessage("Set Title and Radius")
+            radius.setMessage("Set Title and Radius in meters")
                     .setTitle("Input");
             LinearLayout layout = new LinearLayout(this);
             layout.setOrientation(LinearLayout.VERTICAL);

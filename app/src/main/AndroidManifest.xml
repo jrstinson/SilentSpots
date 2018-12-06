@@ -25,8 +25,18 @@
    android:name="com.google.android.geo.API_KEY"
    android:value="AIzaSyAnr2Mk7i_0jDkQhjs8axQX6t6UH91QoGA" />
 
-  <activity android:name="csc415.finalProject.SilentSpots.MapActivity" />
-  <activity android:name="csc415.finalProject.SilentSpots.DetailsActivity"></activity>
+  <activity android:name="csc415.finalProject.SilentSpots.MapActivity"
+    android:parentActivityName="csc415.finalProject.SilentSpots.ListActivity">
+   <meta-data
+     android:name="android.support.PARENT_ACTIVITY"
+       android:value="csc415.finalProject.SilentSpots.ListActivity"/>
+  </activity>
+  <activity android:name="csc415.finalProject.SilentSpots.DetailsActivity"
+   android:parentActivityName="csc415.finalProject.SilentSpots.ListActivity">
+   <meta-data
+       android:name="android.support.PARENT_ACTIVITY"
+       android:value="csc415.finalProject.SilentSpots.ListActivity"/>
+  </activity>
   <service android:name=".GeofenceTransitionsIntentService"/>
  </application>
 

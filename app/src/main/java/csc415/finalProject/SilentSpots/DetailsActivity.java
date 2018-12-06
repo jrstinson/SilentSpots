@@ -54,6 +54,7 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         titleView = findViewById(R.id.title);
         addressView = findViewById(R.id.address);
         radiusView = findViewById(R.id.radius);
@@ -166,7 +167,7 @@ public class DetailsActivity extends AppCompatActivity {
 
             //Dialogue box for Radius and Title
             AlertDialog.Builder radius = new AlertDialog.Builder(DetailsActivity.this);
-            radius.setMessage("Set Title and Radius")
+            radius.setMessage("Set Title and Radius in meters")
                     .setTitle("Input");
             LinearLayout layout = new LinearLayout(this);
             layout.setOrientation(LinearLayout.VERTICAL);

@@ -26,6 +26,7 @@
 
   <activity android:name="csc415.finalProject.SilentSpots.MapActivity" />
   <activity android:name="csc415.finalProject.SilentSpots.DetailsActivity"></activity>
+  <service android:name=".GeofenceTransitionsIntentService"/>
  </application>
 
 </manifest>

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -68,6 +69,7 @@ public class DetailsActivity extends AppCompatActivity {
     TextView radiusView;
     FirebaseFirestore firestore;
     RadioGroup rg;
+    double radius;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +109,8 @@ public class DetailsActivity extends AppCompatActivity {
                     titleView.append(" "+document.get("title"));
                     addressView.append(" "+document.get("address"));
                     radiusView.append(" "+document.get("radius"));
+                    radius = (double) document.get("radius");
+                    System.out.println(radius);
                 }
             }
         });
@@ -127,6 +131,7 @@ public class DetailsActivity extends AppCompatActivity {
         });
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(map -> {
+            // Get the document, forcing the SDK to use the offline cache
             this.map = map;
             // placeholder example, set from current place id
             titleView = findViewById(R.id.title);
@@ -139,21 +144,36 @@ public class DetailsActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
                     if (task.isSuccessful()) {
-                        PlaceBufferResponse places = task.getResult();
-                        Place myPlace = places.get(0);
-                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace.getLatLng(), 16));
-                        MarkerOptions marker = new MarkerOptions();
-                        marker.position(myPlace.getLatLng());
-                        marker.title(myPlace.getName().toString());
-                        marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                        map.addMarker(marker);
+                        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            PlaceBufferResponse places = task.getResult();
 
-                    } else {
-                        Log.println(Log.WARN, "test", "ID not found");
-                    }
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    // Document found in the offline cache
+                                    DocumentSnapshot document = task.getResult();
+                                    System.out.println(radius);
+                                    Place myPlace = places.get(0);
+                                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace.getLatLng(), 16));
+                                    map.addMarker(new MarkerOptions()
+                                            .position(myPlace.getLatLng())
+                                            .title(myPlace.getName().toString())
+                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                                    );
+                                    map.addCircle(new CircleOptions()
+                                            .center(myPlace.getLatLng())
+                                            .radius((double) document.get("radius"))
+                                            .strokeColor(Color.BLACK)
+                                            .fillColor(0x220000FF)
+                                            .strokeWidth(5)
+                                    );
+                                } else {
+                                    Log.println(Log.WARN, "test", "ID not found");
+                                }
 
-                }
-            });
+                            }
+                        });
+                    }}});
 
             map.setOnMapClickListener((location) -> {
                 try {

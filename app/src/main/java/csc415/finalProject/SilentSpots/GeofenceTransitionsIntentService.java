@@ -70,7 +70,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     DocumentSnapshot document = doctask.getResult();
                     switch (document.get("setting").toString()) {
                         case "None":
-                            if(manager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_NONE) DoNotDisturbToggles.fullDND(false, manager);
+                            if(manager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_ALL) DoNotDisturbToggles.fullDND(false, manager);
                             break;
                         case "Full":
                             if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)

@@ -121,6 +121,7 @@ public class ListActivity extends AppCompatActivity {
   if (manager.isNotificationPolicyAccessGranted() == false) {
    startActivity(new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
   }
+  Activity context = this;
 
 
   storage.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -129,37 +130,38 @@ public class ListActivity extends AppCompatActivity {
           if(task.isSuccessful()){
               QuerySnapshot rules = task.getResult();
               List<Rule> ruleList = rules.toObjects(Rule.class);
+              List<DocumentSnapshot> list = rules.getDocuments();
 
-              for(Rule rule: ruleList){
+              for(int i=0; i < rules.size(); i++){
 
-                  geofenceList.add(new Geofence.Builder().setRequestId(rule.place)
-                  .setCircularRegion(rule.coordinates.getLatitude(),rule.coordinates.getLongitude(), (float) rule.radius)
+                  geofenceList.add(new Geofence.Builder().setRequestId(list.get(i).getId())
+                  .setCircularRegion(ruleList.get(i).coordinates.getLatitude(),ruleList.get(i).coordinates.getLongitude(), (float) ruleList.get(i).radius)
                           .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
                           .setExpirationDuration(Geofence.NEVER_EXPIRE)
                   .build());
+                  Log.println(Log.WARN,"test",geofenceList.get(0).getRequestId());
+              }
+              try {
+                  geofencingClient.addGeofences(geofencingRequest(), getGeofencePendingIntent()).addOnSuccessListener(context, new OnSuccessListener<Void>() {
+                      @Override
+                      public void onSuccess(Void aVoid) {
+
+                      }
+                  }).addOnFailureListener(context, new OnFailureListener() {
+                      @Override
+                      public void onFailure(@NonNull Exception e) {
+
+                      }
+                  });
+              }
+              catch (SecurityException e){
+                  Log.println(Log.WARN, "test", "failure");
               }
 
           }
       }
   });
-  try {
-      if(!geofenceList.isEmpty()) {
-          geofencingClient.addGeofences(geofencingRequest(), getGeofencePendingIntent()).addOnSuccessListener(this, new OnSuccessListener<Void>() {
-              @Override
-              public void onSuccess(Void aVoid) {
 
-              }
-          }).addOnFailureListener(this, new OnFailureListener() {
-              @Override
-              public void onFailure(@NonNull Exception e) {
-
-              }
-          });
-      }
-  }
-  catch (SecurityException e){
-      Log.println(Log.WARN, "test", "failure");
-  }
 
 
  }

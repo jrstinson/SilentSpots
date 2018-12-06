@@ -26,6 +26,9 @@ public class GeofenceTransitionsIntentService extends IntentService {
     CollectionReference storage;
 
 
+    public GeofenceTransitionsIntentService() {
+        super("None");
+    }
 
     public GeofenceTransitionsIntentService(String name) {
         super(name);
@@ -50,7 +53,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         storage = firestore.collection("users").document(user).collection("rules");
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if(geofencingEvent.hasError()){
-            Log.e(TAG, "error");
+            Log.println(Log.WARN, "test", "not working");
             return;
         }
 
@@ -60,6 +63,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 transition == Geofence.GEOFENCE_TRANSITION_EXIT){
             List<Geofence> geofences = geofencingEvent.getTriggeringGeofences();
             for(Geofence geofence: geofences){
+                Log.println(Log.WARN, "blarg", geofence.getRequestId());
                 DocumentReference docRef = storage.document(geofence.getRequestId());
                 docRef.get().addOnCompleteListener(doctask -> {
                     DocumentSnapshot document = doctask.getResult();

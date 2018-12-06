@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -22,14 +24,22 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MapActivity extends AppCompatActivity {
     GoogleMap map;
@@ -47,15 +57,39 @@ public class MapActivity extends AppCompatActivity {
         user = fireauth.getCurrentUser().getUid();
         storage = firestore.collection("users").document(user).collection("rules");
 
+
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         fragment.getMapAsync(map -> {
+            Context ctx = this;
             this.map = map;
-            LatLng nku = new LatLng(39.0323317, -84.4647653);
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(nku, 16));
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                map.setMyLocationEnabled(true);
-            }
+            storage.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot rules = task.getResult();
+                        List<Rule> ruleList = rules.toObjects(Rule.class);
+                        List<LatLng> latLngs = new ArrayList<>();
+                        if (!ruleList.isEmpty()) {
+                            for (Rule rule : ruleList) {
+                                latLngs.add(new LatLng(rule.coordinates.getLatitude(), rule.coordinates.getLongitude()));
+                                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngs.get(0), 16));
+                                if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION)
+                                        == PackageManager.PERMISSION_GRANTED) {
+                                    map.setMyLocationEnabled(true);
+                                }
+                                map.addCircle(new CircleOptions().center(new LatLng(rule.coordinates.getLatitude(), rule.coordinates.getLongitude()))
+                                        .radius(rule.radius)
+                                        .fillColor(0x220000FF)
+                                        .strokeColor(Color.BLACK)
+                                        .strokeWidth(1)).setClickable(true);
+                                
+                            }
+                        }
+                    }
+                }
+            });
+
+
         });
     }
 

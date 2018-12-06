@@ -2,6 +2,7 @@ package csc415.finalProject.SilentSpots;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -17,6 +18,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.Circle;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -104,13 +106,16 @@ public class DetailsActivity extends AppCompatActivity {
                     PlaceBufferResponse places = placetask.getResult();
                     Place myPlace = places.get(0);
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace.getLatLng(), 16));
+
                     map.addCircle(new CircleOptions()
                             .center(myPlace.getLatLng())
                             .radius((double) document.get("radius"))
                             .strokeColor(Color.BLACK)
                             .fillColor(0x220000FF)
                             .strokeWidth(1)
+
                     );
+
                 });
 
                 map.setOnMapClickListener((location) -> {
@@ -146,6 +151,8 @@ public class DetailsActivity extends AppCompatActivity {
             return (true);
         } else if (id == R.id.view) {
             // todo open opposite of parent activity
+            Intent intent = new Intent(this, MapActivity.class);
+            startActivity(intent);
             return (true);
         } else {
             return (super.onOptionsItemSelected(item));

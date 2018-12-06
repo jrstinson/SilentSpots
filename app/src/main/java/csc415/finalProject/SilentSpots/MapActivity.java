@@ -100,7 +100,7 @@ public class MapActivity extends AppCompatActivity {
    LinearLayout layout = new LinearLayout(this);
    layout.setOrientation(LinearLayout.VERTICAL);
    final EditText input = new EditText(this);
-   input.setHint("Radius");
+   input.setHint("Radius (In Meters)");
    final EditText input2 = new EditText(this);
    input2.setHint("Title");
    layout.addView(input2);

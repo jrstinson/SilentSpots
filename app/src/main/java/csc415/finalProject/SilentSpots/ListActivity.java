@@ -115,7 +115,7 @@ public class ListActivity extends AppCompatActivity {
 
   FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Rule, Holder>(options) {
    @Override public void onBindViewHolder(Holder holder, int position, Rule rule) {
-    holder.itemtext.setText(rule.title);
+    holder.itemtext.setText(rule.title + "\n" + rule.setting);
     holder.itemtext.setOnClickListener(view -> {
      String id = getSnapshots().getSnapshot(holder.getAdapterPosition()).getId();
      details.putExtra("rule", id);
@@ -188,7 +188,7 @@ public class ListActivity extends AppCompatActivity {
    LinearLayout layout = new LinearLayout(this);
    layout.setOrientation(LinearLayout.VERTICAL);
    final EditText input = new EditText(this);
-   input.setHint("Radius");
+   input.setHint("Radius (In Meters)");
    final EditText input2 = new EditText(this);
    input2.setHint("Title");
    layout.addView(input2);

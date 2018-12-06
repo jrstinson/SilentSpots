@@ -36,6 +36,7 @@ package csc415.finalProject.SilentSpots;
 
 import android.annotation.TargetApi;
 import android.app.NotificationManager;
+import android.util.Log;
 
 
 class DoNotDisturbToggles {
@@ -58,6 +59,7 @@ class DoNotDisturbToggles {
 
         NotificationManager.Policy policy = new NotificationManager.Policy(NotificationManager.Policy.PRIORITY_CATEGORY_ALARMS, 0, 0);
         if (isChecked) {
+
             manager.setNotificationPolicy(policy);
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
         } else {

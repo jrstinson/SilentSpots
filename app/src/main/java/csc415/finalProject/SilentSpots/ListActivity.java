@@ -3,6 +3,7 @@ package csc415.finalProject.SilentSpots;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,6 +36,10 @@ import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AddPlaceRequest;
 import com.google.android.gms.location.places.GeoDataApi;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -44,6 +49,8 @@ import com.google.android.gms.location.places.PlaceBufferResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.api.Distribution;
 import com.google.firebase.auth.AuthResult;
@@ -54,6 +61,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -78,9 +87,16 @@ public class ListActivity extends AppCompatActivity {
  FirebaseAuth fireauth;
  String user;
  CollectionReference storage;
+ private GeofencingClient geofencingClient;
+ List<Geofence> geofenceList;
+ PendingIntent geofencePendingIntent;
 
  protected void onCreate(Bundle savedInstanceState) {
   super.onCreate(savedInstanceState);
+
+  geofencingClient = LocationServices.getGeofencingClient(this);
+  geofenceList = new ArrayList<>();
+
   setContentView(R.layout.activity_list);
   locationsview = findViewById(R.id.locations);
 
@@ -90,10 +106,12 @@ public class ListActivity extends AppCompatActivity {
   FirebaseUser currentuser = fireauth.getCurrentUser();
   if(currentuser != null) {
    user = currentuser.getUid();
+   storage = firestore.collection("users").document(user).collection("rules");
    storageadapter();
   } else {
    fireauth.signInAnonymously().addOnCompleteListener(task -> {
     user = task.getResult().getUser().getUid();
+    storage = firestore.collection("users").document(user).collection("rules");
     storageadapter();
    });
   }
@@ -103,6 +121,64 @@ public class ListActivity extends AppCompatActivity {
   if (manager.isNotificationPolicyAccessGranted() == false) {
    startActivity(new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
   }
+  Activity context = this;
+
+
+  storage.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+      @Override
+      public void onComplete(@NonNull Task<QuerySnapshot> task) {
+          if(task.isSuccessful()){
+              QuerySnapshot rules = task.getResult();
+              List<Rule> ruleList = rules.toObjects(Rule.class);
+              List<DocumentSnapshot> list = rules.getDocuments();
+
+              for(int i=0; i < rules.size(); i++){
+
+                  geofenceList.add(new Geofence.Builder().setRequestId(list.get(i).getId())
+                  .setCircularRegion(ruleList.get(i).coordinates.getLatitude(),ruleList.get(i).coordinates.getLongitude(), (float) ruleList.get(i).radius)
+                          .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                          .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                  .build());
+                  Log.println(Log.WARN,"test",geofenceList.get(0).getRequestId());
+              }
+              try {
+                  geofencingClient.addGeofences(geofencingRequest(), getGeofencePendingIntent()).addOnSuccessListener(context, new OnSuccessListener<Void>() {
+                      @Override
+                      public void onSuccess(Void aVoid) {
+
+                      }
+                  }).addOnFailureListener(context, new OnFailureListener() {
+                      @Override
+                      public void onFailure(@NonNull Exception e) {
+
+                      }
+                  });
+              }
+              catch (SecurityException e){
+                  Log.println(Log.WARN, "test", "failure");
+              }
+
+          }
+      }
+  });
+
+
+
+ }
+ private GeofencingRequest geofencingRequest(){
+     GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+     builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+
+     builder.addGeofences(geofenceList);
+     return builder.build();
+ }
+ private PendingIntent getGeofencePendingIntent() {
+     if(geofencePendingIntent != null){
+         return geofencePendingIntent;
+     }
+     Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+     geofencePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+     return geofencePendingIntent;
  }
 
  void storageadapter() {

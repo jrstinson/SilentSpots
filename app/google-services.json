@@ -67,6 +67,50 @@
           "status": 2
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:643022309181:android:53c34ff1b99cff28",
+        "android_client_info": {
+          "package_name": "software.danielherr.silencelocations"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "643022309181-7eoanfhvjme422u8u04alalnbj94k7lr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "software.danielherr.silencelocations",
+            "certificate_hash": "5cc13a0fbb5411e2aa69a4307e7e7385b6dc7ec3"
+          }
+        },
+        {
+          "client_id": "643022309181-ua410g0m5hhtejhb869d3k271p6m3gma.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBt4MhvzjJWoVebCHeDCHhDbsXfofc24OU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "643022309181-ua410g0m5hhtejhb869d3k271p6m3gma.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
     }
   ],
   "configuration_version": "1"

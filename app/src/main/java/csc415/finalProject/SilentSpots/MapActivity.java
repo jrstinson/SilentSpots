@@ -127,19 +127,19 @@ public class MapActivity extends AppCompatActivity {
             Place place = PlacePicker.getPlace(this, data);
             Intent details = new Intent(this, DetailsActivity.class);
 
-            //Dialogue box for Radius and Title
-            AlertDialog.Builder radius = new AlertDialog.Builder(MapActivity.this);
-            radius.setMessage("Set Title and Radius")
-                    .setTitle("Input");
-            LinearLayout layout = new LinearLayout(this);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            final EditText input = new EditText(this);
-            input.setHint("Radius");
-            final EditText input2 = new EditText(this);
-            input2.setHint("Title");
-            layout.addView(input2);
-            layout.addView(input);
-            radius.setView(layout);
+   //Dialogue box for Radius and Title
+   AlertDialog.Builder radius = new AlertDialog.Builder(MapActivity.this);
+   radius.setMessage("Set Title and Radius")
+    .setTitle("Input");
+   LinearLayout layout = new LinearLayout(this);
+   layout.setOrientation(LinearLayout.VERTICAL);
+   final EditText input = new EditText(this);
+   input.setHint("Radius (In Meters)");
+   final EditText input2 = new EditText(this);
+   input2.setHint("Title");
+   layout.addView(input2);
+   layout.addView(input);
+   radius.setView(layout);
 
             radius.setPositiveButton("Ok", (dialog, whichButton) -> {
                 double value = Double.valueOf(input.getText().toString());

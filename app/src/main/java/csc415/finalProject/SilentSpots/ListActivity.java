@@ -167,7 +167,7 @@ public class ListActivity extends AppCompatActivity {
         FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Rule, Holder>(options) {
             @Override
             public void onBindViewHolder(Holder holder, int position, Rule rule) {
-                holder.itemtext.setText(rule.title);
+                holder.itemtext.setText(rule.title + "\n" + rule.setting);
                 holder.itemtext.setOnClickListener(view -> {
                     String id = getSnapshots().getSnapshot(holder.getAdapterPosition()).getId();
                     details.putExtra("rule", id);

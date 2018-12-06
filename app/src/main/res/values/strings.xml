@@ -2,7 +2,7 @@
  <string name="app_name">Silent Spots</string>
     <string name="title">Title: </string>
     <string name="address">Address: </string>
-    <string name="radius">Radius: </string>
+    <string name="radius">Radius(In Meters): </string>
     <string name="set_radius">Set Radius</string>
     <string name="no_dnd">None</string>
     <string name="on_with_alarms">On with Alarms</string>

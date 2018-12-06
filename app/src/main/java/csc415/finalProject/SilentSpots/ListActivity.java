@@ -26,6 +26,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.app.NotificationManager;
+import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -45,6 +46,9 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.api.Distribution;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -69,102 +73,118 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class ListActivity extends AppCompatActivity {
-    RecyclerView locationsview;
-    FirebaseFirestore firestore;
+ RecyclerView locationsview;
+ FirebaseFirestore firestore;
+ FirebaseAuth fireauth;
+ String user;
+ CollectionReference storage;
 
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
-        locationsview = findViewById(R.id.locations);
-        Intent details = new Intent(this, DetailsActivity.class);
+ protected void onCreate(Bundle savedInstanceState) {
+  super.onCreate(savedInstanceState);
+  setContentView(R.layout.activity_list);
+  locationsview = findViewById(R.id.locations);
 
-        firestore = FirebaseFirestore.getInstance();
-        Query query = firestore.collection("rules").orderBy("title");
-        FirestoreRecyclerOptions<Rule> options = new FirestoreRecyclerOptions.Builder<Rule>()
-                .setQuery(query, Rule.class).build();
-      
-        FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Rule, Holder>(options) {
-            @Override
-            public void onBindViewHolder(Holder holder, int position, Rule rule) {
-                holder.itemtext.setText(rule.title);
-                holder.itemtext.setOnClickListener(view -> {
-                    String id = rule.place;
-                    details.putExtra("location", id);
-                    Log.println(Log.WARN, "test", id);
-                    startActivity(details);
-                });
-                holder.itemtext.setOnLongClickListener(view -> {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemtext.getContext());
-                    builder.setTitle("Remove Location Rule");
-                    builder.setMessage("Are you sure?");
-                    builder.setPositiveButton("REMOVE", (dialog, which) -> {
-                        String id = getSnapshots().getSnapshot(holder.getAdapterPosition()).getId();
-                        firestore.collection("rules").document(id).delete();
-                        dialog.dismiss();
-                    });
-                    builder.setNegativeButton("CANCEL", (dialog, which) -> {
-                        dialog.dismiss();
-                    });
-                    builder.create().show();
-                    return (true);
-                });
-            }
+  firestore = FirebaseFirestore.getInstance();
+  fireauth = FirebaseAuth.getInstance();
 
-            @Override
-            public Holder onCreateViewHolder(ViewGroup group, int type) {
-                return (new Holder(LayoutInflater.from(group.getContext()).inflate(R.layout.item, group, false)));
-            }
-        };
-        adapter.startListening();
-        locationsview.setAdapter(adapter);
+  FirebaseUser currentuser = fireauth.getCurrentUser();
+  if(currentuser != null) {
+   user = currentuser.getUid();
+   storageadapter();
+  } else {
+   fireauth.signInAnonymously().addOnCompleteListener(task -> {
+    user = task.getResult().getUser().getUid();
+    storageadapter();
+   });
+  }
 
-        locationsview.setLayoutManager(new LinearLayoutManager(this));
-        Context context = this;
-        NotificationManager manager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        if (manager.isNotificationPolicyAccessGranted() == false) {
-            startActivity(new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
-        }
+  locationsview.setLayoutManager(new LinearLayoutManager(this));
+  NotificationManager manager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+  if (manager.isNotificationPolicyAccessGranted() == false) {
+   startActivity(new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
+  }
+ }
+
+ void storageadapter() {
+  Intent details = new Intent(this, DetailsActivity.class);
+
+  storage = firestore.collection("users").document(user).collection("rules");
+  Query query = storage.orderBy("title");
+  FirestoreRecyclerOptions<Rule> options = new FirestoreRecyclerOptions.Builder<Rule>()
+   .setQuery(query, Rule.class).build();
+
+  FirestoreRecyclerAdapter adapter = new FirestoreRecyclerAdapter<Rule, Holder>(options) {
+   @Override public void onBindViewHolder(Holder holder, int position, Rule rule) {
+    holder.itemtext.setText(rule.title);
+    holder.itemtext.setOnClickListener(view -> {
+     String id = getSnapshots().getSnapshot(holder.getAdapterPosition()).getId();
+     details.putExtra("rule", id);
+     startActivity(details);
+    });
+    holder.itemtext.setOnLongClickListener(view -> {
+     AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemtext.getContext());
+     builder.setTitle("Remove Location Rule");
+     builder.setMessage("Are you sure?");
+     builder.setPositiveButton("REMOVE", (dialog, which) -> {
+      String id = getSnapshots().getSnapshot(holder.getAdapterPosition()).getId();
+      storage.document(id).delete();
+      dialog.dismiss();
+     });
+     builder.setNegativeButton("CANCEL", (dialog, which) -> {
+      dialog.dismiss();
+     });
+     builder.create().show();
+     return (true);
+    });
+   }
+
+   @Override
+   public Holder onCreateViewHolder(ViewGroup group, int type) {
+    return (new Holder(LayoutInflater.from(group.getContext()).inflate(R.layout.item, group, false)));
+   }
+  };
+  adapter.startListening();
+  locationsview.setAdapter(adapter);
+ }
+
+ public boolean onCreateOptionsMenu(Menu menu) {
+  getMenuInflater().inflate(R.menu.menu, menu);
+  menu.getItem(1).setTitle("Map");
+  menu.getItem(1).setIcon(R.drawable.map);
+  return (true);
+ }
+
+ public boolean onOptionsItemSelected(MenuItem item) {
+  int id = item.getItemId();
+  if (id == R.id.add) {
+   if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+    != PackageManager.PERMISSION_GRANTED) {
+    ActivityCompat.requestPermissions(this, new String[]{
+     Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+   } else {
+    try {
+     startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
+    } catch (Exception ignored) {
     }
+   }
+   return (true);
+  } else if (id == R.id.view) {
+   startActivity(new Intent(this, MapActivity.class));
+   return (true);
+  } else {
+   return (super.onOptionsItemSelected(item));
+  }
+ }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        menu.getItem(1).setTitle("Map");
-        menu.getItem(1).setIcon(R.drawable.map);
-        return (true);
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.add) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            } else {
-                try {
-                    startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
-                } catch (Exception ignored) {
-                }
-            }
-            return (true);
-        } else if (id == R.id.view) {
-            startActivity(new Intent(this, MapActivity.class));
-            return (true);
-        } else {
-            return (super.onOptionsItemSelected(item));
-        }
-    }
-
-    protected void onActivityResult(int request, int result, Intent data) {
-        if (request == 1 && result == RESULT_OK) {
-            Place place = PlacePicker.getPlace(this, data);
+ protected void onActivityResult(int request, int result, Intent data) {
+  if (request == 1 && result == RESULT_OK) {
+   Place place = PlacePicker.getPlace(this, data);
    Intent details = new Intent(this, DetailsActivity.class);
-   details.putExtra("location", place.getId());
 
    //Dialogue box for Radius and Title
    AlertDialog.Builder radius = new AlertDialog.Builder(ListActivity.this);
    radius.setMessage("Set Title and Radius")
-           .setTitle("Input");
+    .setTitle("Input");
    LinearLayout layout = new LinearLayout(this);
    layout.setOrientation(LinearLayout.VERTICAL);
    final EditText input = new EditText(this);
@@ -175,46 +195,35 @@ public class ListActivity extends AppCompatActivity {
    layout.addView(input);
    radius.setView(layout);
 
-   radius.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-    public void onClick(DialogInterface dialog, int whichButton) {
-     double value = Double.valueOf(input.getText().toString());
-     String value2 = input2.getText().toString();
-     Rule rule = new Rule();
-     rule.place = place.getId();
-     rule.title = value2;
-     rule.address = (String)place.getAddress();
-     rule.radius = value;
-     rule.setting = "None";
-     rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
-     firestore.collection("rules").document(rule.place).set(rule);
+   radius.setPositiveButton("Ok", (dialog, whichButton) -> {
+    double value = Double.valueOf(input.getText().toString());
+    String value2 = input2.getText().toString();
+    Rule rule = new Rule();
+    rule.place = place.getId();
+    rule.title = value2;
+    rule.address = (String) place.getAddress();
+    rule.radius = value;
+    rule.setting = "None";
+    rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
+    storage.add(rule).addOnCompleteListener(task -> {
+     details.putExtra("rule", task.getResult().getId());
      startActivity(details);
-    }
+    });
    });
 
-   radius.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-    public void onClick(DialogInterface dialog, int whichButton) {
-     // Canceled.
-    }
+   radius.setNegativeButton("Cancel", (dialog, whichButton) -> {
+    // Canceled.
    });
    radius.show();
-        }
-    }
-}
-
-class Rule {
-    String title;
-    String address;
-    String place;
-    double radius;
-    GeoPoint coordinates;
-    String setting;
+  }
+ }
 }
 
 class Holder extends RecyclerView.ViewHolder {
-    TextView itemtext;
+ TextView itemtext;
 
-    Holder(View itemview) {
-        super(itemview);
-        itemtext = itemview.findViewById(R.id.item);
-    }
+ Holder(View itemview) {
+  super(itemview);
+  itemtext = itemview.findViewById(R.id.item);
+ }
 }

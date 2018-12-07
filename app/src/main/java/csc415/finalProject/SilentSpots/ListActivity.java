@@ -63,7 +63,7 @@ public class ListActivity extends AppCompatActivity {
 
         geofencingClient = LocationServices.getGeofencingClient(this);
         geofenceList = new ArrayList<>();
-
+        Activity context = this;
         setContentView(R.layout.activity_list);
         locationsview = findViewById(R.id.locations);
 
@@ -73,13 +73,95 @@ public class ListActivity extends AppCompatActivity {
         FirebaseUser currentuser = fireauth.getCurrentUser();
         if (currentuser != null) {
             user = currentuser.getUid();
+            Log.println(Log.WARN, "blarg", user);
             storage = firestore.collection("users").document(user).collection("rules");
+            storage.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot rules = task.getResult();
+                        List<Rule> ruleList = rules.toObjects(Rule.class);
+                        List<DocumentSnapshot> list = rules.getDocuments();
+                        if(!ruleList.isEmpty()) {
+
+                            for (int i = 0; i < rules.size(); i++) {
+
+                                geofenceList.add(new Geofence.Builder().setRequestId(list.get(i).getId())
+                                        .setCircularRegion(ruleList.get(i).coordinates.getLatitude(), ruleList.get(i).coordinates.getLongitude(), (float) ruleList.get(i).radius)
+                                        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                                        .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                        .build());
+                                Log.println(Log.WARN, "test", geofenceList.get(0).getRequestId());
+                            }
+                            try {
+                                geofencingClient.addGeofences(geofencingRequest(), getGeofencePendingIntent()).addOnSuccessListener(context, new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+
+                                    }
+                                }).addOnFailureListener(context, new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                    }
+                                });
+                            } catch (SecurityException e) {
+                                Log.println(Log.WARN, "test", "failure");
+                            }
+                        }
+
+                    }
+                }
+            });
+
             storageadapter();
         } else {
             fireauth.signInAnonymously().addOnCompleteListener(task -> {
-                user = task.getResult().getUser().getUid();
-                storage = firestore.collection("users").document(user).collection("rules");
-                storageadapter();
+                if(task.isSuccessful()) {
+                    user = task.getResult().getUser().getUid();
+                    Log.println(Log.WARN, "blarg", user);
+                    storage = firestore.collection("users").document(user).collection("rules");
+                    storage.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                QuerySnapshot rules = task.getResult();
+                                List<Rule> ruleList = rules.toObjects(Rule.class);
+                                List<DocumentSnapshot> list = rules.getDocuments();
+                                if(!ruleList.isEmpty()) {
+
+                                    for (int i = 0; i < rules.size(); i++) {
+
+                                        geofenceList.add(new Geofence.Builder().setRequestId(list.get(i).getId())
+                                                .setCircularRegion(ruleList.get(i).coordinates.getLatitude(), ruleList.get(i).coordinates.getLongitude(), (float) ruleList.get(i).radius)
+                                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                                                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                                .build());
+                                        Log.println(Log.WARN, "test", geofenceList.get(0).getRequestId());
+                                    }
+                                    try {
+                                        geofencingClient.addGeofences(geofencingRequest(), getGeofencePendingIntent()).addOnSuccessListener(context, new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+
+                                            }
+                                        }).addOnFailureListener(context, new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+
+                                            }
+                                        });
+                                    } catch (SecurityException e) {
+                                        Log.println(Log.WARN, "test", "failure");
+                                    }
+                                }
+
+                            }
+                        }
+                    });
+
+                    storageadapter();
+                }
             });
         }
 
@@ -94,47 +176,8 @@ public class ListActivity extends AppCompatActivity {
             });
             builder.create().show();
         }
-        Activity context = this;
 
 
-        storage.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    QuerySnapshot rules = task.getResult();
-                    List<Rule> ruleList = rules.toObjects(Rule.class);
-                    List<DocumentSnapshot> list = rules.getDocuments();
-                    if(!ruleList.isEmpty()) {
-
-                        for (int i = 0; i < rules.size(); i++) {
-
-                            geofenceList.add(new Geofence.Builder().setRequestId(list.get(i).getId())
-                                    .setCircularRegion(ruleList.get(i).coordinates.getLatitude(), ruleList.get(i).coordinates.getLongitude(), (float) ruleList.get(i).radius)
-                                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                                    .build());
-                            Log.println(Log.WARN, "test", geofenceList.get(0).getRequestId());
-                        }
-                        try {
-                            geofencingClient.addGeofences(geofencingRequest(), getGeofencePendingIntent()).addOnSuccessListener(context, new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-
-                                }
-                            }).addOnFailureListener(context, new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-                        } catch (SecurityException e) {
-                            Log.println(Log.WARN, "test", "failure");
-                        }
-                    }
-
-                }
-            }
-        });
 
 
     }

@@ -31,7 +31,7 @@ TODO: figure out how to allow messages and calls from starred contacts at the sa
 
  */
 
-package csc415.finalProject.SilentSpots;
+package csc494.finalProject.SilentSpots;
 
 import android.annotation.TargetApi;
 import android.app.NotificationManager;

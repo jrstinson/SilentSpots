@@ -2,12 +2,8 @@ package csc415.finalProject.SilentSpots;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -18,10 +14,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.Circle;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBufferResponse;
@@ -30,16 +22,21 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
+import androidx.appcompat.app.AppCompatActivity;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 
 public class DetailsActivity extends AppCompatActivity {
-    GoogleMap map; // noninteractive, displays single marker
+    GoogleMap map; // non-interactive, displays single marker
     TextView titleView;
     TextView addressView;
     TextView radiusView;
@@ -49,6 +46,7 @@ public class DetailsActivity extends AppCompatActivity {
     FirebaseAuth fireauth;
     String user;
     CollectionReference storage;
+    private static final int PLACE_PICKER_ACCESS_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,16 +137,7 @@ public class DetailsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.add) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            } else {
-                try {
-                    startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
-                } catch (Exception ignored) {
-                }
-            }
+            showPlacePicker();
             return (true);
         } else if (id == R.id.view) {
             // todo open opposite of parent activity
@@ -157,6 +146,24 @@ public class DetailsActivity extends AppCompatActivity {
             return (true);
         } else {
             return (super.onOptionsItemSelected(item));
+        }
+    }
+
+    @AfterPermissionGranted(PLACE_PICKER_ACCESS_CODE)
+    private void showPlacePicker() {
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+
+        if (EasyPermissions.hasPermissions(this, permissions)) {
+            try {
+                startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
+            } catch (Exception ignored) {
+                Log.println(Log.WARN, "MapActivity", ignored.getLocalizedMessage());
+            }
+        } else {
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, PLACE_PICKER_ACCESS_CODE, permissions)
+                            .build()
+            );
         }
     }
 

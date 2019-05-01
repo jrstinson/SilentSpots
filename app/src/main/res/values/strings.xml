@@ -1,12 +1,15 @@
 <resources>
- <string name="app_name">Silent Spots</string>
+    <string name="app_name">Silent Spots</string>
     <string name="title">Title: </string>
     <string name="address">Address: </string>
     <string name="radius">Radius(In Meters): </string>
     <string name="set_radius">Set Radius</string>
     <string name="no_dnd">None</string>
     <string name="on_with_alarms">On with Alarms</string>
-   <string name="starred_callers_only">Starred Callers Only</string>
-   <string name="messages_only">Messages Only</string>
-   <string name="fullDND">Full Do Not Disturb</string>
+    <string name="starred_callers_only">Starred Callers Only</string>
+    <string name="messages_only">Messages Only</string>
+    <string name="fullDND">Full Do Not Disturb</string>
+    <string name="title_activity_add_location">AddLocation</string>
+    <string name="app_label">SilentSpots</string>
+    <string name="search_hint">New York</string>
 </resources>

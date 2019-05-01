@@ -145,7 +145,7 @@ public class DetailsActivity extends AppCompatActivity {
                         Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             } else {
                 try {
-                    startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
+                    startActivityForResult(new Intent(this, AddLocation.class),1 );
                 } catch (Exception ignored) {
                 }
             }

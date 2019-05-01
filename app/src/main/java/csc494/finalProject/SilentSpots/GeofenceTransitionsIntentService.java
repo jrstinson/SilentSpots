@@ -24,6 +24,10 @@ public class GeofenceTransitionsIntentService extends IntentService {
     FirebaseAuth fireauth;
     String user;
     CollectionReference storage;
+    String name;
+    int time;
+    int hour;
+    int minutes;
 
     public GeofenceTransitionsIntentService() {
         super("None");
@@ -92,6 +96,22 @@ public class GeofenceTransitionsIntentService extends IntentService {
                                 DoNotDisturbToggles.alarmsDND(true, manager);
                             if (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                                 DoNotDisturbToggles.alarmsDND(false, manager);
+                            break;
+                    }
+                    switch (document.get("clock").toString()) {
+                        case "None":
+                            break;
+                        case "Timer":
+                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
+                                name = document.get("title").toString();
+                                time = Integer.parseInt(document.get("large").toString())*60 + Integer.parseInt(document.get("small").toString());
+                                DoNotDisturbToggles.setTimer(name, time, this);
+                            break;
+                        case "Alarm":
+                            name = document.get("title").toString();
+                            hour = Integer.parseInt(document.get("large").toString());
+                            minutes = Integer.parseInt(document.get("small").toString());
+                            DoNotDisturbToggles.setAlarm(name, hour, minutes, this);
                             break;
                     }
                 });

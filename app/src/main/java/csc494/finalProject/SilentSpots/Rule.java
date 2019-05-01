@@ -9,4 +9,7 @@ public class Rule {
     double radius;
     GeoPoint coordinates;
     String setting;
+    String clock;
+    int large;
+    int small;
 }

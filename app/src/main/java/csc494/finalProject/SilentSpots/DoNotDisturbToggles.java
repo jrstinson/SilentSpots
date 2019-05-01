@@ -35,6 +35,9 @@ package csc494.finalProject.SilentSpots;
 
 import android.annotation.TargetApi;
 import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
+import android.provider.AlarmClock;
 
 class DoNotDisturbToggles {
 
@@ -93,5 +96,26 @@ class DoNotDisturbToggles {
         } else {
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
         }
+    }
+
+    @TargetApi(23)
+    static void setTimer(String name, int time, Context context) {
+        Intent intent = new Intent(AlarmClock.ACTION_SET_TIMER)
+                .putExtra(AlarmClock.EXTRA_MESSAGE, name)
+                .putExtra(AlarmClock.EXTRA_LENGTH, time)
+                .putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+        if (intent.resolveActivity(context.getPackageManager()) != null)
+            context.startActivity(intent);
+    }
+
+    @TargetApi(23)
+    static void setAlarm(String name, int hour, int minutes, Context context) {
+        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM)
+                .putExtra(AlarmClock.EXTRA_MESSAGE, name)
+                .putExtra(AlarmClock.EXTRA_HOUR, hour)
+                .putExtra(AlarmClock.EXTRA_MINUTES, minutes)
+                .putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+        if (intent.resolveActivity(context.getPackageManager()) != null)
+            context.startActivity(intent);
     }
 }

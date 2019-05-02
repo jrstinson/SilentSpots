@@ -93,6 +93,11 @@ public class GeofenceTransitionsIntentService extends IntentService {
                             if (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                                 DoNotDisturbToggles.alarmsDND(false, manager);
                             break;
+                        case "Media":
+                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
+                                DoNotDisturbToggles.mediaMode(true, manager);
+                            if (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
+                                DoNotDisturbToggles.mediaMode(true, manager);
                     }
                 });
             }

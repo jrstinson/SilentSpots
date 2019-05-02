@@ -117,5 +117,15 @@
             android:layout_weight="1"
             android:tag="Full"
             android:text="@string/fullDND" />
+
+        <RadioButton
+            android:id="@+id/radioMedia"
+            android:tag="Media"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/media_mode" />
+
     </RadioGroup>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -104,7 +104,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
                         case "Timer":
                             if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
                                 name = document.get("title").toString();
-                                time = Integer.parseInt(document.get("small").toString());
+                                time = Integer.parseInt(document.get("large").toString()) * 60 + Integer.parseInt(document.get("small").toString());
                                 DoNotDisturbToggles.setTimer(name, time, this);
                             break;
                         case "Alarm":

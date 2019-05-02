@@ -37,6 +37,7 @@ import com.google.firebase.firestore.GeoPoint;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
@@ -46,7 +47,7 @@ public class DetailsActivity extends AppCompatActivity {
     TextView titleView;
     TextView addressView;
     TextView radiusView;
-    NumberPicker timerPicker;
+    Button timerPicker;
     Button alarmPicker;
     RadioGroup rg;
     RadioGroup rg2;
@@ -55,6 +56,8 @@ public class DetailsActivity extends AppCompatActivity {
     FirebaseAuth fireauth;
     String user;
     CollectionReference storage;
+    DialogFragment newFragment;
+    NumberPickerFragment timerFragment;
     private static final int PLACE_PICKER_ACCESS_CODE = 101;
 
     @Override
@@ -102,13 +105,13 @@ public class DetailsActivity extends AppCompatActivity {
                 case "Alarm":
                     rg2.check(R.id.radioAlarm);
                     setAlarmVisibility();
-                    DialogFragment newFragment = new TimePickerFragment();
+                    newFragment = new TimePickerFragment();
                     newFragment.show(getSupportFragmentManager(), "timePicker");
                     break;
                 case "Timer":
                     rg2.check(R.id.radioTimer);
-                    timerPicker = findViewById(R.id.timerPicker);
-                    timerPicker.setValue(Integer.parseInt(document.get("small").toString()));
+                    newFragment = new TimePickerFragment();
+                    newFragment.show(getSupportFragmentManager(), "timePicker");
                     setTimerVisibility();
                     break;
             }
@@ -130,14 +133,13 @@ public class DetailsActivity extends AppCompatActivity {
                     docRef.update("clock", radioButton.getTag());
                     if (checkedId==R.id.radioAlarm) {
                         setAlarmVisibility();
-                        DialogFragment newFragment = new TimePickerFragment();
+                        newFragment = new TimePickerFragment();
                         newFragment.show(getSupportFragmentManager(), "timePicker");
                     }
                     else if (checkedId==R.id.radioTimer){
                         setTimerVisibility();
-                        timerPicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
-                            docRef.update("small", newVal);
-                        });
+                        newFragment = new TimePickerFragment();
+                        newFragment.show(getSupportFragmentManager(), "timePicker");
                     }
                     else {
                         setNoVisibility();
@@ -278,8 +280,6 @@ public class DetailsActivity extends AppCompatActivity {
         alarmPicker.setVisibility(View.GONE);
         timerPicker = findViewById(R.id.timerPicker);
         timerPicker.setVisibility(View.VISIBLE);
-        timerPicker.setMinValue(1);
-        timerPicker.setMaxValue(600);
     }
 
     private void setNoVisibility() {
@@ -291,5 +291,9 @@ public class DetailsActivity extends AppCompatActivity {
     public void showTimePickerDialog(View v) {
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getSupportFragmentManager(), "timePicker");
+    }
+    public void showNumberPickerDialog(View v) {
+        NumberPickerFragment newFragment = new NumberPickerFragment();
+        newFragment.show();
     }
 }

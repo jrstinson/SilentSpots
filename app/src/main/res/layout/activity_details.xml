@@ -152,13 +152,15 @@
             android:tag="Alarm"
             android:text="@string/set_alarm" />
     </RadioGroup>
-    <NumberPicker
+    <Button
         android:id="@+id/timerPicker"
         android:layout_width="160dp"
-        android:layout_height="96dp"
+        android:layout_height="48dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/radioGroup2"
         app:layout_constraintLeft_toLeftOf="@id/radioGroup2"
+        android:text="@string/set_timer"
+        android:onClick="showNumberPickerDialog"
         />
 
     <Button

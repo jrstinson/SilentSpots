@@ -32,14 +32,13 @@ public class TimePickerFragment extends DialogFragment
         storage = firestore.collection("users").document(user).collection("rules");
         Intent startingIntent = getActivity().getIntent();
         DocumentReference docRef = storage.document(startingIntent.getStringExtra("rule"));
-
-        DocumentSnapshot result = docRef.get().getResult();
-        hour = Integer.parseInt(result.get("large").toString());
-        minute = Integer.parseInt(result.get("small").toString());
-
+        docRef.get().addOnCompleteListener(doctask -> {
+            DocumentSnapshot document = doctask.getResult();
+            setHour(Integer.parseInt(document.get("large").toString()));
+            setMinute(Integer.parseInt(document.get("small").toString()));
+        });
         // Create a new instance of TimePickerDialog and return it
-        return new TimePickerDialog(getActivity(), this, hour, minute,
-                DateFormat.is24HourFormat(getActivity()));
+        return new TimePickerDialog(getActivity(), this, hour, minute,true);
 
     }
 
@@ -52,5 +51,11 @@ public class TimePickerFragment extends DialogFragment
         DocumentReference docRef = storage.document(startingIntent.getStringExtra("rule"));
         docRef.update("large", hourOfDay);
         docRef.update("small", minute);
+    }
+    public void setHour(int hour){
+        this.hour = hour;
+    }
+    public void setMinute(int minute){
+        this.minute = minute;
     }
 }

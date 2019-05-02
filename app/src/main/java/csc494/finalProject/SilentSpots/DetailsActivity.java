@@ -9,11 +9,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
@@ -41,12 +44,8 @@ public class DetailsActivity extends AppCompatActivity {
     TextView titleView;
     TextView addressView;
     TextView radiusView;
-    TextView label1;
-    TextView label2;
-    TextView label3;
-    EditText large;
-    TextView colon;
-    EditText small;
+    NumberPicker timerPicker;
+    TimePicker alarmPicker;
     RadioGroup rg;
     RadioGroup rg2;
     double radius;
@@ -100,18 +99,15 @@ public class DetailsActivity extends AppCompatActivity {
                     break;
                 case "Alarm":
                     rg2.check(R.id.radioAlarm);
-                    large = findViewById(R.id.alarmHours);
-                    large.setText(document.get("large").toString());
-                    small = findViewById(R.id.alarmMinutes);
-                    small.setText(document.get("small").toString());
+                    alarmPicker = findViewById(R.id.alarmTimePicker);
+                    alarmPicker.setHour(Integer.parseInt(document.get("large").toString()));
+                    alarmPicker.setMinute(Integer.parseInt(document.get("small").toString()));
                     setAlarmVisibility();
                     break;
                 case "Timer":
                     rg2.check(R.id.radioTimer);
-                    large = findViewById(R.id.timerMinutes);
-                    large.setText(document.get("large").toString());
-                    small = findViewById(R.id.timerSeconds);
-                    small.setText(document.get("small").toString());
+                    timerPicker = findViewById(R.id.timerPicker);
+                    timerPicker.setValue(Integer.parseInt(document.get("small").toString()));
                     setTimerVisibility();
                     break;
             }
@@ -133,9 +129,16 @@ public class DetailsActivity extends AppCompatActivity {
                     docRef.update("clock", radioButton.getTag());
                     if (checkedId==R.id.radioAlarm) {
                         setAlarmVisibility();
+                        alarmPicker.setOnTimeChangedListener((view, hourOfDay, minute) -> {
+                            docRef.update("large", hourOfDay);
+                            docRef.update("small", minute);
+                        });
                     }
                     else if (checkedId==R.id.radioTimer){
                         setTimerVisibility();
+                        timerPicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
+                            docRef.update("small", newVal);
+                        });
                     }
                 }
             });
@@ -223,6 +226,7 @@ public class DetailsActivity extends AppCompatActivity {
             layout.setOrientation(LinearLayout.VERTICAL);
             final EditText input = new EditText(this);
             input.setHint("Radius");
+            input.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
             final EditText input2 = new EditText(this);
             input2.setHint("Title");
             layout.addView(input2);
@@ -259,56 +263,19 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
     private void setAlarmVisibility(){
-        label1 = findViewById(R.id.timerLabel1);
-        label2 = findViewById(R.id.timerLabel2);
-        label3 = findViewById(R.id.timerLabel3);
-        large = findViewById(R.id.timerMinutes);
-        colon = findViewById(R.id.timerColon);
-        small = findViewById(R.id.timerSeconds);
-        label1.setVisibility(View.GONE);
-        label2.setVisibility(View.GONE);
-        label3.setVisibility(View.GONE);
-        large.setVisibility(View.GONE);
-        colon.setVisibility(View.GONE);
-        small.setVisibility(View.GONE);
-        label1 = findViewById(R.id.alarmLabel1);
-        label2 = findViewById(R.id.alarmLabel2);
-        label3 = findViewById(R.id.alarmLabel3);
-        large = findViewById(R.id.alarmHours);
-        colon = findViewById(R.id.alarmColon);
-        small = findViewById(R.id.alarmMinutes);
-        label1.setVisibility(View.VISIBLE);
-        label2.setVisibility(View.VISIBLE);
-        label3.setVisibility(View.VISIBLE);
-        large.setVisibility(View.VISIBLE);
-        colon.setVisibility(View.VISIBLE);
-        small.setVisibility(View.VISIBLE);
+        timerPicker = findViewById(R.id.timerPicker);
+        timerPicker.setVisibility(View.GONE);
+        alarmPicker = findViewById(R.id.alarmTimePicker);
+        alarmPicker.setIs24HourView(true);
+        alarmPicker.setVisibility(View.VISIBLE);
     }
 
     private void setTimerVisibility() {
-        label1 = findViewById(R.id.alarmLabel1);
-        label2 = findViewById(R.id.alarmLabel2);
-        label3 = findViewById(R.id.alarmLabel3);
-        large = findViewById(R.id.alarmHours);
-        colon = findViewById(R.id.alarmColon);
-        small = findViewById(R.id.alarmMinutes);
-        label1.setVisibility(View.GONE);
-        label2.setVisibility(View.GONE);
-        label3.setVisibility(View.GONE);
-        large.setVisibility(View.GONE);
-        colon.setVisibility(View.GONE);
-        small.setVisibility(View.GONE);
-        label1 = findViewById(R.id.timerLabel1);
-        label2 = findViewById(R.id.timerLabel2);
-        label3 = findViewById(R.id.timerLabel3);
-        large = findViewById(R.id.timerMinutes);
-        colon = findViewById(R.id.timerColon);
-        small = findViewById(R.id.timerSeconds);
-        label1.setVisibility(View.VISIBLE);
-        label2.setVisibility(View.VISIBLE);
-        label3.setVisibility(View.VISIBLE);
-        large.setVisibility(View.VISIBLE);
-        colon.setVisibility(View.VISIBLE);
-        small.setVisibility(View.VISIBLE);
+        alarmPicker = findViewById(R.id.alarmTimePicker);
+        alarmPicker.setVisibility(View.GONE);
+        timerPicker = findViewById(R.id.timerPicker);
+        timerPicker.setVisibility(View.VISIBLE);
+        timerPicker.setMinValue(1);
+        timerPicker.setMaxValue(600);
     }
 }

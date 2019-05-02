@@ -68,8 +68,8 @@
         android:layout_width="160dp"
         android:layout_height="120dp"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="58dp"
+        app:layout_constraintTop_toBottomOf="@+id/radius"
         app:layout_constraintBottom_toTopOf="@+id/map"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -153,109 +153,21 @@
             android:tag="Alarm"
             android:text="@string/set_alarm" />
     </RadioGroup>
-    <TextView
-    android:id="@+id/timerLabel1"
-    android:layout_width="60dp"
-    android:layout_height="24dp"
-    android:visibility="gone"
-    app:layout_constraintTop_toBottomOf="@+id/radioGroup2"
-    app:layout_constraintLeft_toLeftOf="@id/radioGroup2"
-    android:text="@string/minutes"/>
-    <TextView
-        android:id="@+id/timerLabel2"
-        android:layout_width="8dp"
-        android:layout_height="24dp"
+    <NumberPicker
+        android:id="@+id/timerPicker"
+        android:layout_width="160dp"
+        android:layout_height="96dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup2"
-        app:layout_constraintLeft_toRightOf="@id/timerLabel1"
-        android:text="@string/colon"/>
-    <TextView
-        android:id="@+id/timerLabel3"
-        android:layout_width="60dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup2"
-        app:layout_constraintLeft_toRightOf="@id/timerLabel2"
-        android:text="@string/seconds"/>
-    <EditText
-        android:id="@+id/timerMinutes"
-        android:layout_width="60dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/timerLabel1"
-        app:layout_constraintLeft_toLeftOf="@id/timerLabel1"
-        android:inputType="number"
-        android:text="@string/zeros"
-        />
-    <TextView
-        android:id="@+id/timerColon"
-        android:layout_width="8dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/timerLabel2"
-        app:layout_constraintLeft_toLeftOf="@id/timerLabel2"
-        android:text="@string/colon"/>
-    <EditText
-        android:id="@+id/timerSeconds"
-        android:layout_width="60dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/timerLabel3"
-        app:layout_constraintLeft_toLeftOf="@id/timerLabel3"
-        android:inputType="number"
-        android:text="@string/zeros"
+        app:layout_constraintTop_toBottomOf="@id/radioGroup2"
+        app:layout_constraintLeft_toLeftOf="@id/radioGroup2"
         />
 
-    <TextView
-        android:id="@+id/alarmLabel1"
-        android:layout_width="60dp"
-        android:layout_height="24dp"
+    <TimePicker
+        android:id="@+id/alarmTimePicker"
+        android:layout_width="160dp"
+        android:layout_height="96dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup2"
+        app:layout_constraintTop_toBottomOf="@id/radioGroup2"
         app:layout_constraintLeft_toLeftOf="@id/radioGroup2"
-        android:text="@string/hour"/>
-    <TextView
-        android:id="@+id/alarmLabel2"
-        android:layout_width="8dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup2"
-        app:layout_constraintLeft_toRightOf="@id/timerLabel1"
-        android:text="@string/colon"/>
-    <TextView
-        android:id="@+id/alarmLabel3"
-        android:layout_width="60dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup2"
-        app:layout_constraintLeft_toRightOf="@id/timerLabel2"
-        android:text="@string/minute"/>
-    <EditText
-        android:id="@+id/alarmHours"
-        android:layout_width="60dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/timerLabel1"
-        app:layout_constraintLeft_toLeftOf="@id/timerLabel1"
-        android:inputType="number"
-        android:text="@string/zeros"
-        />
-    <TextView
-        android:id="@+id/alarmColon"
-        android:layout_width="8dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/timerLabel2"
-        app:layout_constraintLeft_toLeftOf="@id/timerLabel2"
-        android:text="@string/colon"/>
-    <EditText
-        android:id="@+id/alarmMinutes"
-        android:layout_width="60dp"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/timerLabel3"
-        app:layout_constraintLeft_toLeftOf="@id/timerLabel3"
-        android:inputType="number"
-        android:text="@string/zeros"
-        />
+        android:timePickerMode="spinner"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -277,18 +277,21 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
-    protected void onActivityResult(int request, int result, Intent data) {
+    public void onActivityResult(int request, int result, Intent data) {
         if (request == 1 && result == RESULT_OK) {
             Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
 
             PlacesClient placesClient = Places.createClient(this);
             String placeID = data.getDataString();
-            List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+            List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
 
             FetchPlaceRequest requestPlace = FetchPlaceRequest.builder(placeID, placeFields).build();
 
             placesClient.fetchPlace(requestPlace).addOnSuccessListener((response) ->{
                 Place place = response.getPlace();
+
+                Log.println(Log.WARN, "addressTest", place.getAddress());
+                Log.println(Log.WARN, "latLangTest", place.getLatLng().toString());
                 Intent details = new Intent(this, DetailsActivity.class);
 
                 //Dialogue box for Radius and Title
@@ -314,6 +317,7 @@ public class ListActivity extends AppCompatActivity {
                     rule.address = (String) place.getAddress();
                     rule.radius = value;
                     rule.setting = "None";
+                    Log.println(Log.WARN, "ruleTest", rule.address);
                     rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
                     storage.add(rule).addOnCompleteListener(task -> {
                         details.putExtra("rule", task.getResult().getId());

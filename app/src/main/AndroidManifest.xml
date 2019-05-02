@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="csc494.finalProject.SilentSpots">
+    package="csc415.finalProject.SilentSpots">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
@@ -12,13 +11,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        android:theme="@style/AppTheme">
 
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-        <activity android:name="csc494.finalProject.SilentSpots.ListActivity">
+        <activity android:name="csc415.finalProject.SilentSpots.ListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,21 +29,21 @@
             android:value="AIzaSyAnr2Mk7i_0jDkQhjs8axQX6t6UH91QoGA" />
 
         <activity
-            android:name="csc494.finalProject.SilentSpots.MapActivity"
-            android:parentActivityName="csc494.finalProject.SilentSpots.ListActivity">
+            android:name="csc415.finalProject.SilentSpots.MapActivity"
+            android:parentActivityName="csc415.finalProject.SilentSpots.ListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="csc494.finalProject.SilentSpots.ListActivity" />
+                android:value="csc415.finalProject.SilentSpots.ListActivity" />
         </activity>
         <activity
-            android:name="csc494.finalProject.SilentSpots.DetailsActivity"
-            android:parentActivityName="csc494.finalProject.SilentSpots.ListActivity">
+            android:name="csc415.finalProject.SilentSpots.DetailsActivity"
+            android:parentActivityName="csc415.finalProject.SilentSpots.ListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="csc494.finalProject.SilentSpots.ListActivity" />
+                android:value="csc415.finalProject.SilentSpots.ListActivity" />
         </activity>
 
-        <service android:name="csc494.finalProject.SilentSpots.GeofenceTransitionsIntentService" />
+        <service android:name=".GeofenceTransitionsIntentService" />
     </application>
 
 </manifest>

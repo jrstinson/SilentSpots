@@ -1,4 +1,4 @@
-package csc494.finalProject.SilentSpots;
+package csc415.finalProject.SilentSpots;
 
 import com.google.firebase.firestore.GeoPoint;
 

@@ -31,6 +31,10 @@ public class GeofenceTransitionsIntentService extends IntentService {
     FirebaseAuth fireauth;
     String user;
     CollectionReference storage;
+    String name;
+    int time;
+    int hour;
+    int minutes;
     public static final String CHANNEL_ID = "channel_01";
 
     public GeofenceTransitionsIntentService() {
@@ -74,7 +78,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     DocumentSnapshot document = doctask.getResult();
                     switch (document.get("setting").toString()) {
                         case "None":
-                            
+
                             if (manager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_ALL)
                                 DoNotDisturbToggles.fullDND(false, manager);
                             break;
@@ -107,6 +111,22 @@ public class GeofenceTransitionsIntentService extends IntentService {
                                 DoNotDisturbToggles.mediaMode(true, manager);
                             if (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                                 DoNotDisturbToggles.mediaMode(true, manager);
+                    }
+                    switch (document.get("clock").toString()) {
+                        case "None":
+                            break;
+                        case "Timer":
+                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
+                                name = document.get("title").toString();
+                                time = Integer.parseInt(document.get("large").toString()) * 60 + Integer.parseInt(document.get("small").toString());
+                                DoNotDisturbToggles.setTimer(name, time, this);
+                            break;
+                        case "Alarm":
+                            name = document.get("title").toString();
+                            hour = Integer.parseInt(document.get("large").toString());
+                            minutes = Integer.parseInt(document.get("small").toString());
+                            DoNotDisturbToggles.setAlarm(name, hour, minutes, this);
+                            break;
                     }
                 });
             }

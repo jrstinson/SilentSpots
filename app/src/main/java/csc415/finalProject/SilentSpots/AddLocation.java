@@ -71,7 +71,7 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
+        Places.initialize(getApplicationContext(), "AIzaSyCdcnMssDUkAhRDPYtuYToZVsaFv84N7Ag");
 
         PlacesClient placesClient = Places.createClient(this);
 
@@ -141,7 +141,7 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
                 BigDecimal lng = new BigDecimal(currentLatLng.longitude).setScale(4, RoundingMode.HALF_UP);
 
 
-                String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + Double.toString(lat.doubleValue()) + "," + Double.toString(lng.doubleValue()) + "&key=AIzaSyCdcnMssDUkAhRDPYtuYToZVsaFv84N7Ag";
+                String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + Double.toString(lat.doubleValue()) + "," + Double.toString(lng.doubleValue()) + "&key=AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0";
 
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -186,8 +186,8 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
                 BigDecimal lng = new BigDecimal(latLng.longitude).setScale(4, RoundingMode.HALF_UP);
                 LatLng coarseLatLng = new LatLng(lat.doubleValue(), lng.doubleValue());
 
-                String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + Double.toString(lat.doubleValue()) + "," + Double.toString(lng.doubleValue()) + "&key=AIzaSyCdcnMssDUkAhRDPYtuYToZVsaFv84N7Ag";
-
+                String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + Double.toString(lat.doubleValue()) + "," + Double.toString(lng.doubleValue()) + "&key=AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0";
+                Log.println(Log.ERROR, "VolleyError", url);
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {

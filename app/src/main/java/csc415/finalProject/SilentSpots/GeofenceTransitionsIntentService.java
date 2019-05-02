@@ -57,7 +57,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         int transition = geofencingEvent.getGeofenceTransition();
 
         if (transition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-                transition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                transition == Geofence.GEOFENCE_TRANSITION_EXIT || transition == Geofence.GEOFENCE_TRANSITION_DWELL) {
             List<Geofence> geofences = geofencingEvent.getTriggeringGeofences();
             for (Geofence geofence : geofences) {
                 Log.println(Log.WARN, "blarg", geofence.getRequestId());
@@ -66,35 +66,36 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     DocumentSnapshot document = doctask.getResult();
                     switch (document.get("setting").toString()) {
                         case "None":
+                            
                             if (manager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_ALL)
                                 DoNotDisturbToggles.fullDND(false, manager);
                             break;
                         case "Full":
-                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
+                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER || transition == Geofence.GEOFENCE_TRANSITION_DWELL)
                                 DoNotDisturbToggles.fullDND(true, manager);
                             if (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                                 DoNotDisturbToggles.fullDND(false, manager);
                             break;
                         case "Starred":
-                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
+                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER || transition == Geofence.GEOFENCE_TRANSITION_DWELL)
                                 DoNotDisturbToggles.starredOnly(true, manager);
                             if (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                                 DoNotDisturbToggles.starredOnly(false, manager);
                             break;
                         case "Messages":
-                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
+                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER || transition == Geofence.GEOFENCE_TRANSITION_DWELL)
                                 DoNotDisturbToggles.messageOnly(true, manager);
                             if (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                                 DoNotDisturbToggles.messageOnly(false, manager);
                             break;
                         case "Alarms":
-                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
+                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER || transition == Geofence.GEOFENCE_TRANSITION_DWELL)
                                 DoNotDisturbToggles.alarmsDND(true, manager);
                             if (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                                 DoNotDisturbToggles.alarmsDND(false, manager);
                             break;
                         case "Media":
-                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
+                            if (transition == Geofence.GEOFENCE_TRANSITION_ENTER || transition == Geofence.GEOFENCE_TRANSITION_DWELL)
                                 DoNotDisturbToggles.mediaMode(true, manager);
                             if (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                                 DoNotDisturbToggles.mediaMode(true, manager);

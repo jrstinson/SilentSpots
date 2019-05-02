@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -35,6 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
@@ -45,7 +47,7 @@ public class DetailsActivity extends AppCompatActivity {
     TextView addressView;
     TextView radiusView;
     NumberPicker timerPicker;
-    TimePicker alarmPicker;
+    Button alarmPicker;
     RadioGroup rg;
     RadioGroup rg2;
     double radius;
@@ -99,10 +101,9 @@ public class DetailsActivity extends AppCompatActivity {
                     break;
                 case "Alarm":
                     rg2.check(R.id.radioAlarm);
-                    alarmPicker = findViewById(R.id.alarmTimePicker);
-                    alarmPicker.setHour(Integer.parseInt(document.get("large").toString()));
-                    alarmPicker.setMinute(Integer.parseInt(document.get("small").toString()));
                     setAlarmVisibility();
+                    DialogFragment newFragment = new TimePickerFragment();
+                    newFragment.show(getSupportFragmentManager(), "timePicker");
                     break;
                 case "Timer":
                     rg2.check(R.id.radioTimer);
@@ -129,10 +130,8 @@ public class DetailsActivity extends AppCompatActivity {
                     docRef.update("clock", radioButton.getTag());
                     if (checkedId==R.id.radioAlarm) {
                         setAlarmVisibility();
-                        alarmPicker.setOnTimeChangedListener((view, hourOfDay, minute) -> {
-                            docRef.update("large", hourOfDay);
-                            docRef.update("small", minute);
-                        });
+                        DialogFragment newFragment = new TimePickerFragment();
+                        newFragment.show(getSupportFragmentManager(), "timePicker");
                     }
                     else if (checkedId==R.id.radioTimer){
                         setTimerVisibility();
@@ -271,7 +270,6 @@ public class DetailsActivity extends AppCompatActivity {
         timerPicker = findViewById(R.id.timerPicker);
         timerPicker.setVisibility(View.GONE);
         alarmPicker = findViewById(R.id.alarmTimePicker);
-        alarmPicker.setIs24HourView(true);
         alarmPicker.setVisibility(View.VISIBLE);
     }
 
@@ -289,5 +287,9 @@ public class DetailsActivity extends AppCompatActivity {
         alarmPicker.setVisibility(View.GONE);
         timerPicker = findViewById(R.id.timerPicker);
         timerPicker.setVisibility(View.GONE);
+    }
+    public void showTimePickerDialog(View v) {
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "timePicker");
     }
 }

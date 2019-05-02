@@ -60,6 +60,7 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+        com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         titleView = findViewById(R.id.title);
         addressView = findViewById(R.id.address);
@@ -111,10 +112,14 @@ public class DetailsActivity extends AppCompatActivity {
             fragment.getMapAsync(map -> {
                 this.map = map;
                 String place = document.get("place").toString();
-                GeoDataClient geodata = Places.getGeoDataClient(this);
-                geodata.getPlaceById(place).addOnCompleteListener(placetask -> {
-                    PlaceBufferResponse places = placetask.getResult();
-                    Place myPlace = places.get(0);
+                List<com.google.android.libraries.places.api.model.Place.Field> placeFields = Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
+                com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
+
+                PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(this);
+                FetchPlaceRequest requestPlace = FetchPlaceRequest.builder(place, placeFields).build();
+
+                placesClient.fetchPlace(requestPlace).addOnSuccessListener((response) ->{
+                    com.google.android.libraries.places.api.model.Place myPlace = response.getPlace();
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace.getLatLng(), 16));
 
                     map.addCircle(new CircleOptions()

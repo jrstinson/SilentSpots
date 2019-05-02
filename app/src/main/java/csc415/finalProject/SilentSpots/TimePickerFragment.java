@@ -1,4 +1,4 @@
-package csc494.finalProject.SilentSpots;
+package csc415.finalProject.SilentSpots;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;

@@ -186,14 +186,14 @@ public class DetailsActivity extends AppCompatActivity {
 
                 //Dialogue box for Radius and Title
                 AlertDialog.Builder radius = new AlertDialog.Builder(DetailsActivity.this);
-                radius.setMessage("Set Title and Radius in meters")
-                        .setTitle("Input");
+                radius.setMessage("Set nickname and radius (in meters) for "+place.getAddress())
+                        .setTitle("Add Location");
                 LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.VERTICAL);
                 final EditText input = new EditText(this);
                 input.setHint("Radius");
                 final EditText input2 = new EditText(this);
-                input2.setHint("Title");
+                input2.setHint("Nickname");
                 layout.addView(input2);
                 layout.addView(input);
                 radius.setView(layout);

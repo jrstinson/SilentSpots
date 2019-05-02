@@ -135,7 +135,7 @@ public class MapActivity extends AppCompatActivity {
 
     protected void onActivityResult(int request, int result, Intent data) {
         if (request == 1 && result == RESULT_OK) {
-            Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
+            Places.initialize(getApplicationContext(), "AIzaSyCdcnMssDUkAhRDPYtuYToZVsaFv84N7Ag");
 
             PlacesClient placesClient = Places.createClient(this);
             String placeID = data.getDataString();
@@ -151,14 +151,14 @@ public class MapActivity extends AppCompatActivity {
 
                 //Dialogue box for Radius and Title
                 AlertDialog.Builder radius = new AlertDialog.Builder(MapActivity.this);
-                radius.setMessage("Set Title and Radius in meters")
-                        .setTitle("Input");
+                radius.setMessage("Set nickname and radius (in meters) for "+place.getAddress())
+                        .setTitle("Add Location");
                 LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.VERTICAL);
                 final EditText input = new EditText(this);
                 input.setHint("Radius");
                 final EditText input2 = new EditText(this);
-                input2.setHint("Title");
+                input2.setHint("Nickname");
                 layout.addView(input2);
                 layout.addView(input);
                 radius.setView(layout);

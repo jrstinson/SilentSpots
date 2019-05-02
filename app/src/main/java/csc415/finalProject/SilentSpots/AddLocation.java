@@ -4,25 +4,18 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.Status;
@@ -35,7 +28,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -117,12 +109,7 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
         } else {
             try {
                 fusedLocationProviderClient.getLastLocation()
-                        .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                            @Override
-                            public void onSuccess(Location location) {
-                                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16));
-                            }
-                        });
+                        .addOnSuccessListener(this, location -> googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16)));
             } catch (Exception ignored) {
             }
         }
@@ -132,92 +119,70 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
 
         googleMap.setMyLocationEnabled(true);
 
-        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-            @Override
-            public boolean onMyLocationButtonClick() {
-                LatLng currentLatLng = googleMap.getCameraPosition().target;
+        googleMap.setOnMyLocationButtonClickListener(() -> {
+            LatLng currentLatLng = googleMap.getCameraPosition().target;
 
-                BigDecimal lat = new BigDecimal(currentLatLng.latitude).setScale(4, RoundingMode.HALF_UP);
-                BigDecimal lng = new BigDecimal(currentLatLng.longitude).setScale(4, RoundingMode.HALF_UP);
+            BigDecimal lat = new BigDecimal(currentLatLng.latitude).setScale(4, RoundingMode.HALF_UP);
+            BigDecimal lng = new BigDecimal(currentLatLng.longitude).setScale(4, RoundingMode.HALF_UP);
 
 
-                String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + Double.toString(lat.doubleValue()) + "," + Double.toString(lng.doubleValue()) + "&key=AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0";
+            String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.doubleValue() + "," + lng.doubleValue() + "&key=AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0";
 
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+                try {
 
-                            JSONArray array = response.getJSONArray("results");
-                            JSONObject geometry = array.getJSONObject(1);
-                            String place_id = geometry.getString("place_id");
+                    JSONArray array = response.getJSONArray("results");
+                    JSONObject geometry = array.getJSONObject(1);
+                    String place_id = geometry.getString("place_id");
 
-                            Intent data = new Intent();
-                            data.setData(Uri.parse(place_id));
-                            setResult(RESULT_OK, data);
+                    Intent data = new Intent();
+                    data.setData(Uri.parse(place_id));
+                    setResult(RESULT_OK, data);
 
-                            finish();
+                    finish();
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.println(Log.ERROR, "VolleyError", "Volley request failed");
-                    }
-                });
-                queue.add(jsonObjectRequest);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }, error -> Log.println(Log.ERROR, "VolleyError", "Volley request failed"));
+            queue.add(jsonObjectRequest);
 
-                return false;
-            }
+            return false;
         });
 
 
         Geocoder geocoder = new Geocoder(this);
-        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                googleMap.addMarker(new MarkerOptions().position(latLng));
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+        googleMap.setOnMapLongClickListener(latLng -> {
+            googleMap.addMarker(new MarkerOptions().position(latLng));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
 
-                BigDecimal lat = new BigDecimal(latLng.latitude).setScale(4, RoundingMode.HALF_UP);
-                BigDecimal lng = new BigDecimal(latLng.longitude).setScale(4, RoundingMode.HALF_UP);
-                LatLng coarseLatLng = new LatLng(lat.doubleValue(), lng.doubleValue());
+            BigDecimal lat = new BigDecimal(latLng.latitude).setScale(4, RoundingMode.HALF_UP);
+            BigDecimal lng = new BigDecimal(latLng.longitude).setScale(4, RoundingMode.HALF_UP);
+            LatLng coarseLatLng = new LatLng(lat.doubleValue(), lng.doubleValue());
 
-                String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + Double.toString(lat.doubleValue()) + "," + Double.toString(lng.doubleValue()) + "&key=AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0";
-                Log.println(Log.ERROR, "VolleyError", url);
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
+            String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.doubleValue() + "," + lng.doubleValue() + "&key=AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0";
+            Log.println(Log.ERROR, "VolleyError", url);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+                try {
 
-                            JSONArray array = response.getJSONArray("results");
-                            JSONObject geometry = array.getJSONObject(1);
-                            String place_id = geometry.getString("place_id");
+                    JSONArray array = response.getJSONArray("results");
+                    JSONObject geometry = array.getJSONObject(1);
+                    String place_id = geometry.getString("place_id");
 
-                            Intent data = new Intent();
-                            data.setData(Uri.parse(place_id));
-                            setResult(RESULT_OK, data);
+                    Intent data = new Intent();
+                    data.setData(Uri.parse(place_id));
+                    setResult(RESULT_OK, data);
 
-                            finish();
+                    finish();
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.println(Log.ERROR, "VolleyError", "Volley request failed");
-                    }
-                });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }, error -> Log.println(Log.ERROR, "VolleyError", "Volley request failed"));
 
-                queue.add(jsonObjectRequest);
+            queue.add(jsonObjectRequest);
 
 
-            }
         });
 
 

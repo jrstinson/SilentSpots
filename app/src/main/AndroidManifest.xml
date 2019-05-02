@@ -1,43 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
- package="csc415.finalProject.SilentSpots">
+    package="csc415.finalProject.SilentSpots">
 
- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
- <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
- <application
-  android:allowBackup="true"
-  android:icon="@mipmap/ic_launcher"
-  android:label="@string/app_name"
-  android:roundIcon="@mipmap/ic_launcher_round"
-  android:supportsRtl="true"
-  android:theme="@style/AppTheme">
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
-  <uses-library android:name="org.apache.http.legacy" android:required="false" />
-  <activity android:name="csc415.finalProject.SilentSpots.ListActivity">
-   <intent-filter>
-    <action android:name="android.intent.action.MAIN" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
-    <category android:name="android.intent.category.LAUNCHER" />
-   </intent-filter>
-  </activity>
+        <activity android:name=".ListActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-  <meta-data
-   android:name="com.google.android.geo.API_KEY"
-   android:value="AIzaSyAnr2Mk7i_0jDkQhjs8axQX6t6UH91QoGA" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-  <activity android:name="csc415.finalProject.SilentSpots.MapActivity"
-    android:parentActivityName="csc415.finalProject.SilentSpots.ListActivity">
-   <meta-data
-     android:name="android.support.PARENT_ACTIVITY"
-       android:value="csc415.finalProject.SilentSpots.ListActivity"/>
-  </activity>
-  <activity android:name="csc415.finalProject.SilentSpots.DetailsActivity"
-   android:parentActivityName="csc415.finalProject.SilentSpots.ListActivity">
-   <meta-data
-       android:name="android.support.PARENT_ACTIVITY"
-       android:value="csc415.finalProject.SilentSpots.ListActivity"/>
-  </activity>
-  <service android:name=".GeofenceTransitionsIntentService"/>
- </application>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCdcnMssDUkAhRDPYtuYToZVsaFv84N7Ag" />
+
+        <activity
+            android:name=".MapActivity"
+            android:parentActivityName=".ListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="csc415.finalProject.SilentSpots.ListActivity" />
+        </activity>
+        <activity
+            android:name=".DetailsActivity"
+            android:parentActivityName=".ListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="csc415.finalProject.SilentSpots.ListActivity" />
+        </activity>
+
+        <service android:name=".GeofenceTransitionsIntentService" />
+
+
+        <activity
+            android:name=".AddLocation"
+            android:label="@string/title_activity_add_location">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                        android:resource="@xml/searchable"/>
+        </activity>
+
+
+    </application>
 
 </manifest>

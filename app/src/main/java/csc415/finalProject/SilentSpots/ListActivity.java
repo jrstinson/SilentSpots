@@ -30,12 +30,15 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
+import com.google.android.libraries.places.api.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -46,6 +49,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
@@ -58,6 +62,7 @@ public class ListActivity extends AppCompatActivity {
     List<Geofence> geofenceList;
     PendingIntent geofencePendingIntent;
 
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -69,6 +74,7 @@ public class ListActivity extends AppCompatActivity {
 
         firestore = FirebaseFirestore.getInstance();
         fireauth = FirebaseAuth.getInstance();
+
 
         FirebaseUser currentuser = fireauth.getCurrentUser();
         if (currentuser != null) {
@@ -258,7 +264,7 @@ public class ListActivity extends AppCompatActivity {
                         Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             } else {
                 try {
-                    startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
+                    startActivityForResult(new Intent(this, AddLocation.class),1 );
                 } catch (Exception ignored) {
                 }
             }
@@ -271,45 +277,62 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
-    protected void onActivityResult(int request, int result, Intent data) {
+    public void onActivityResult(int request, int result, Intent data) {
         if (request == 1 && result == RESULT_OK) {
-            Place place = PlacePicker.getPlace(this, data);
-            Intent details = new Intent(this, DetailsActivity.class);
+            Places.initialize(getApplicationContext(), "AIzaSyCdcnMssDUkAhRDPYtuYToZVsaFv84N7Ag");
 
-            //Dialogue box for Radius and Title
-            AlertDialog.Builder radius = new AlertDialog.Builder(ListActivity.this);
-            radius.setMessage("Set Title and Radius in meters")
-                    .setTitle("Input");
-            LinearLayout layout = new LinearLayout(this);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            final EditText input = new EditText(this);
-            input.setHint("Radius");
-            final EditText input2 = new EditText(this);
-            input2.setHint("Title");
-            layout.addView(input2);
-            layout.addView(input);
-            radius.setView(layout);
+            PlacesClient placesClient = Places.createClient(this);
+            String placeID = data.getDataString();
+            List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
 
-            radius.setPositiveButton("Ok", (dialog, whichButton) -> {
-                double value = Double.valueOf(input.getText().toString());
-                String value2 = input2.getText().toString();
-                Rule rule = new Rule();
-                rule.place = place.getId();
-                rule.title = value2;
-                rule.address = (String) place.getAddress();
-                rule.radius = value;
-                rule.setting = "None";
-                rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
-                storage.add(rule).addOnCompleteListener(task -> {
-                    details.putExtra("rule", task.getResult().getId());
-                    startActivity(details);
+            FetchPlaceRequest requestPlace = FetchPlaceRequest.builder(placeID, placeFields).build();
+
+            placesClient.fetchPlace(requestPlace).addOnSuccessListener((response) ->{
+                Place place = response.getPlace();
+
+                Log.println(Log.WARN, "addressTest", place.getAddress());
+                Log.println(Log.WARN, "latLangTest", place.getLatLng().toString());
+                Intent details = new Intent(this, DetailsActivity.class);
+
+                //Dialogue box for Radius and Title
+                AlertDialog.Builder radius = new AlertDialog.Builder(ListActivity.this);
+                radius.setMessage("Set nickname and radius (in meters) for "+place.getAddress())
+                        .setTitle("Add Location");
+                LinearLayout layout = new LinearLayout(this);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                final EditText input = new EditText(this);
+                input.setHint("Radius");
+                final EditText input2 = new EditText(this);
+                input2.setHint("Nickname");
+                layout.addView(input2);
+                layout.addView(input);
+                radius.setView(layout);
+
+                radius.setPositiveButton("Ok", (dialog, whichButton) -> {
+                    double value = Double.valueOf(input.getText().toString());
+                    String value2 = input2.getText().toString();
+                    Rule rule = new Rule();
+                    rule.place = place.getId();
+                    rule.title = value2;
+                    rule.address = (String) place.getAddress();
+                    rule.radius = value;
+                    rule.setting = "None";
+                    Log.println(Log.WARN, "ruleTest", rule.address);
+                    rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
+                    storage.add(rule).addOnCompleteListener(task -> {
+                        details.putExtra("rule", task.getResult().getId());
+                        startActivity(details);
+                    });
                 });
+
+                radius.setNegativeButton("Cancel", (dialog, whichButton) -> {
+                    // Canceled.
+                });
+                radius.show();
+            }).addOnFailureListener((exception) ->{
+
             });
 
-            radius.setNegativeButton("Cancel", (dialog, whichButton) -> {
-                // Canceled.
-            });
-            radius.show();
         }
     }
 }

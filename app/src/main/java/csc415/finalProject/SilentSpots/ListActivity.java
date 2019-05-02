@@ -282,6 +282,9 @@ public class ListActivity extends AppCompatActivity {
                     rule.address = (String) place.getAddress();
                     rule.radius = value;
                     rule.setting = "None";
+                    rule.clock = "None";
+                    rule.large = 0;
+                    rule.small = 0;
                     Log.println(Log.WARN, "ruleTest", rule.address);
                     rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
                     storage.add(rule).addOnCompleteListener(task -> {

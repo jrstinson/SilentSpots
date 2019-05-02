@@ -284,6 +284,9 @@ public class DetailsActivity extends AppCompatActivity {
                     rule.address = (String) place.getAddress();
                     rule.radius = value;
                     rule.setting = "None";
+                    rule.clock = "None";
+                    rule.large = 0;
+                    rule.small = 0;
                     rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
                     storage.add(rule).addOnCompleteListener(task -> {
                         details.putExtra("rule", task.getResult().getId());

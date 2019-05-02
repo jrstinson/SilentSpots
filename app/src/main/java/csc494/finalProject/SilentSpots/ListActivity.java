@@ -277,6 +277,9 @@ public class ListActivity extends AppCompatActivity {
                 rule.radius = value;
                 rule.setting = "None";
                 rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
+                rule.clock="None";
+                rule.large = 0;
+                rule.small = 0;
                 storage.add(rule).addOnCompleteListener(task -> {
                     details.putExtra("rule", task.getResult().getId());
                     startActivity(details);

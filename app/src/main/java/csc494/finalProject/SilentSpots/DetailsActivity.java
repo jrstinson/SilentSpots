@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -40,7 +41,14 @@ public class DetailsActivity extends AppCompatActivity {
     TextView titleView;
     TextView addressView;
     TextView radiusView;
+    TextView label1;
+    TextView label2;
+    TextView label3;
+    EditText large;
+    TextView colon;
+    EditText small;
     RadioGroup rg;
+    RadioGroup rg2;
     double radius;
     FirebaseFirestore firestore;
     FirebaseAuth fireauth;
@@ -57,6 +65,7 @@ public class DetailsActivity extends AppCompatActivity {
         addressView = findViewById(R.id.address);
         radiusView = findViewById(R.id.radius);
         rg = findViewById(R.id.radioGroup);
+        rg2 = findViewById(R.id.radioGroup2);
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         Intent startingIntent = getIntent();
 
@@ -85,6 +94,27 @@ public class DetailsActivity extends AppCompatActivity {
                     rg.check(R.id.radioAlarms);
                     break;
             }
+            switch (document.get("clock").toString()) {
+                case "None":
+                    rg2.check(R.id.radio_none2);
+                    break;
+                case "Alarm":
+                    rg2.check(R.id.radioAlarm);
+                    large = findViewById(R.id.alarmHours);
+                    large.setText(document.get("large").toString());
+                    small = findViewById(R.id.alarmMinutes);
+                    small.setText(document.get("small").toString());
+                    setAlarmVisibility();
+                    break;
+                case "Timer":
+                    rg2.check(R.id.radioTimer);
+                    large = findViewById(R.id.timerMinutes);
+                    large.setText(document.get("large").toString());
+                    small = findViewById(R.id.timerSeconds);
+                    small.setText(document.get("small").toString());
+                    setTimerVisibility();
+                    break;
+            }
             titleView.append(" " + document.get("title"));
             addressView.append(" " + document.get("address"));
             radiusView.append(" " + document.get("radius"));
@@ -94,6 +124,19 @@ public class DetailsActivity extends AppCompatActivity {
                 RadioButton radioButton = group.findViewById(checkedId);
                 if (null != radioButton) {
                     docRef.update("setting", radioButton.getTag());
+                }
+            });
+
+            rg2.setOnCheckedChangeListener((group, checkedId) -> {
+                RadioButton radioButton = group.findViewById(checkedId);
+                if (null != radioButton) {
+                    docRef.update("clock", radioButton.getTag());
+                    if (checkedId==R.id.radioAlarm) {
+                        setAlarmVisibility();
+                    }
+                    else if (checkedId==R.id.radioTimer){
+                        setTimerVisibility();
+                    }
                 }
             });
 
@@ -195,7 +238,11 @@ public class DetailsActivity extends AppCompatActivity {
                 rule.address = (String) place.getAddress();
                 rule.radius = value;
                 rule.setting = "None";
+                rule.clock="None";
+                rule.large = 0;
+                rule.small = 0;
                 rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
+
                 storage.add(rule).addOnCompleteListener(task -> {
                     details.putExtra("rule", task.getResult().getId());
                     startActivity(details);
@@ -210,5 +257,58 @@ public class DetailsActivity extends AppCompatActivity {
             Place place = PlacePicker.getPlace(this, data);
             // todo update current details activity
         }
+    }
+    private void setAlarmVisibility(){
+        label1 = findViewById(R.id.timerLabel1);
+        label2 = findViewById(R.id.timerLabel2);
+        label3 = findViewById(R.id.timerLabel3);
+        large = findViewById(R.id.timerMinutes);
+        colon = findViewById(R.id.timerColon);
+        small = findViewById(R.id.timerSeconds);
+        label1.setVisibility(View.GONE);
+        label2.setVisibility(View.GONE);
+        label3.setVisibility(View.GONE);
+        large.setVisibility(View.GONE);
+        colon.setVisibility(View.GONE);
+        small.setVisibility(View.GONE);
+        label1 = findViewById(R.id.alarmLabel1);
+        label2 = findViewById(R.id.alarmLabel2);
+        label3 = findViewById(R.id.alarmLabel3);
+        large = findViewById(R.id.alarmHours);
+        colon = findViewById(R.id.alarmColon);
+        small = findViewById(R.id.alarmMinutes);
+        label1.setVisibility(View.VISIBLE);
+        label2.setVisibility(View.VISIBLE);
+        label3.setVisibility(View.VISIBLE);
+        large.setVisibility(View.VISIBLE);
+        colon.setVisibility(View.VISIBLE);
+        small.setVisibility(View.VISIBLE);
+    }
+
+    private void setTimerVisibility() {
+        label1 = findViewById(R.id.alarmLabel1);
+        label2 = findViewById(R.id.alarmLabel2);
+        label3 = findViewById(R.id.alarmLabel3);
+        large = findViewById(R.id.alarmHours);
+        colon = findViewById(R.id.alarmColon);
+        small = findViewById(R.id.alarmMinutes);
+        label1.setVisibility(View.GONE);
+        label2.setVisibility(View.GONE);
+        label3.setVisibility(View.GONE);
+        large.setVisibility(View.GONE);
+        colon.setVisibility(View.GONE);
+        small.setVisibility(View.GONE);
+        label1 = findViewById(R.id.timerLabel1);
+        label2 = findViewById(R.id.timerLabel2);
+        label3 = findViewById(R.id.timerLabel3);
+        large = findViewById(R.id.timerMinutes);
+        colon = findViewById(R.id.timerColon);
+        small = findViewById(R.id.timerSeconds);
+        label1.setVisibility(View.VISIBLE);
+        label2.setVisibility(View.VISIBLE);
+        label3.setVisibility(View.VISIBLE);
+        large.setVisibility(View.VISIBLE);
+        colon.setVisibility(View.VISIBLE);
+        small.setVisibility(View.VISIBLE);
     }
 }

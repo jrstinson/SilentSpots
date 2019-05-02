@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
@@ -26,7 +25,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
     String user;
     CollectionReference storage;
 
-
     public GeofenceTransitionsIntentService() {
         super("None");
     }
@@ -47,9 +45,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             user = currentuser.getUid();
 
         } else {
-            fireauth.signInAnonymously().addOnCompleteListener(task -> {
-                user = task.getResult().getUser().getUid();
-            });
+            fireauth.signInAnonymously().addOnCompleteListener(task -> user = task.getResult().getUser().getUid());
         }
         storage = firestore.collection("users").document(user).collection("rules");
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
@@ -70,7 +66,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     DocumentSnapshot document = doctask.getResult();
                     switch (document.get("setting").toString()) {
                         case "None":
-                            if(manager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_ALL) DoNotDisturbToggles.fullDND(false, manager);
+                            if (manager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_ALL)
+                                DoNotDisturbToggles.fullDND(false, manager);
                             break;
                         case "Full":
                             if (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
@@ -104,11 +101,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     }
                 });
             }
-
         } else {
             Log.e(TAG, "error");
         }
     }
-
-
 }

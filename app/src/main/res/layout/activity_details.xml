@@ -1,131 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
- xmlns:app="http://schemas.android.com/apk/res-auto"
- xmlns:tools="http://schemas.android.com/tools"
- android:layout_width="match_parent"
- android:layout_height="match_parent"
- tools:context=".DetailsActivity">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DetailsActivity">
 
- <TextView
-     android:id="@+id/title"
-     android:layout_width="wrap_content"
-     android:layout_height="wrap_content"
-     android:layout_marginStart="4sp"
-     android:layout_marginTop="10dp"
-     android:layout_marginEnd="4sp"
-     android:text="@string/title"
-     android:textSize="16sp"
-     app:layout_constraintEnd_toEndOf="parent"
-     app:layout_constraintHorizontal_bias="0.063"
-     app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4sp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="4sp"
+        android:text="@string/title"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.063"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
- <TextView
-     android:id="@+id/address"
-     android:layout_width="wrap_content"
-     android:layout_height="wrap_content"
-     android:layout_marginTop="10dp"
-     android:text="@string/address"
-     android:textSize="16sp"
+    <TextView
+        android:id="@+id/address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/address"
+        android:textSize="16sp"
 
-     app:layout_constraintStart_toStartOf="@id/title"
-     app:layout_constraintTop_toBottomOf="@+id/title" />
+        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintTop_toBottomOf="@+id/title" />
 
- <TextView
-     android:id="@+id/radius"
-     android:layout_width="wrap_content"
-     android:layout_height="0dp"
-     android:layout_marginTop="10dp"
-     android:text="@string/radius"
-     android:textSize="16sp"
-     app:layout_constraintStart_toStartOf="@id/title"
-     app:layout_constraintTop_toBottomOf="@id/address" />
+    <TextView
+        android:id="@+id/radius"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/radius"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintTop_toBottomOf="@id/address" />
 
- <fragment
-     android:id="@+id/map"
-     android:name="com.google.android.gms.maps.SupportMapFragment"
-     android:layout_width="0dp"
-     android:layout_height="0dp"
-     android:layout_marginStart="8dp"
-     android:layout_marginTop="8dp"
-     android:layout_marginEnd="8dp"
-     android:layout_marginBottom="8dp"
-     app:layout_constraintBottom_toBottomOf="parent"
-     app:layout_constraintEnd_toEndOf="parent"
-     app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toBottomOf="@id/guideline"
-     app:liteMode="true" />
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline"
+        app:liteMode="true" />
 
- <android.support.constraint.Guideline
-     android:id="@+id/guideline"
-     android:layout_width="wrap_content"
-     android:layout_height="wrap_content"
-     android:orientation="horizontal"
-     app:layout_constraintGuide_percent="0.4" />
- <RadioGroup
-     android:id="@+id/radioGroup"
-     android:layout_width="286dp"
-     android:layout_height="120dp"
-     android:layout_marginStart="28dp"
-     android:layout_marginTop="8dp"
-     android:layout_marginBottom="10dp"
-     app:layout_constraintBottom_toTopOf="@+id/map"
-     app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="parent"
-     app:layout_constraintVertical_bias="1.0">
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.4" />
 
-  <RadioButton
-      android:id="@+id/radio_none"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:gravity="center"
-      android:tag="None"
-      android:text="@string/no_dnd" />
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="286dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/map"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
 
-  <RadioButton
-      android:id="@+id/radioAlarms"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:gravity="center"
-      android:tag="Alarms"
-      android:text="@string/on_with_alarms" />
+        <RadioButton
+            android:id="@+id/radio_none"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:tag="None"
+            android:text="@string/no_dnd" />
 
-  <RadioButton
-      android:id="@+id/radioStarred"
-      android:tag="Starred"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:gravity="center"
-      android:text="@string/starred_callers_only" />
+        <RadioButton
+            android:id="@+id/radioAlarms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:tag="Alarms"
+            android:text="@string/on_with_alarms" />
 
-  <RadioButton
-      android:id="@+id/radioMessage"
-      android:tag="Messages"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:text="@string/messages_only" />
+        <RadioButton
+            android:id="@+id/radioStarred"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:tag="Starred"
+            android:text="@string/starred_callers_only" />
 
-  <RadioButton
-      android:id="@+id/radioFull"
-      android:tag="Full"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:text="@string/fullDND" />
+        <RadioButton
+            android:id="@+id/radioMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:tag="Messages"
+            android:text="@string/messages_only" />
 
-  <RadioButton
-      android:id="@+id/radioMedia"
-      android:tag="Media"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:text="@string/media_mode" />
+        <RadioButton
+            android:id="@+id/radioFull"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:tag="Full"
+            android:text="@string/fullDND" />
 
+        <RadioButton
+            android:id="@+id/radioMedia"
+            android:tag="Media"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/media_mode" />
 
- </RadioGroup>
+    </RadioGroup>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

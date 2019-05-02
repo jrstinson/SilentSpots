@@ -3,11 +3,13 @@ package csc415.finalProject.SilentSpots;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,10 +59,9 @@ public class ListActivity extends AppCompatActivity {
     List<Geofence> geofenceList;
     PendingIntent geofencePendingIntent;
 
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        createChannel();
         geofencingClient = LocationServices.getGeofencingClient(this);
         geofenceList = new ArrayList<>();
         Activity context = this;
@@ -297,6 +298,18 @@ public class ListActivity extends AppCompatActivity {
 
             });
 
+        }
+    }
+
+    private void createChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence channelName = getString(R.string.channel_name);
+            String channelDescription = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(GeofenceTransitionsIntentService.CHANNEL_ID, channelName, importance);
+            channel.setDescription(channelDescription);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
         }
     }
 }

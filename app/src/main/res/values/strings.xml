@@ -9,6 +9,12 @@
     <string name="starred_callers_only">Starred Callers Only</string>
     <string name="messages_only">Messages Only</string>
     <string name="fullDND">Full Do Not Disturb</string>
+    <string name="DND_radius_entered">Silent Spot entered</string>
+    <string name="DND_radius_exited">Silent Spot exited</string>
+    <string name="unknown_geofence_transition">unknown transition</string>
+    <string name="channel_name">Enter/Exit Geofence Radius</string>
+    <string name="channel_description">Notifications for entering/exiting geofence</string>
+    <string name="general_notification_text">Do not disturb settings updated.</string>
     <string name="title_activity_add_location">AddLocation</string>
     <string name="app_label">SilentSpots</string>
     <string name="search_hint">New York</string>

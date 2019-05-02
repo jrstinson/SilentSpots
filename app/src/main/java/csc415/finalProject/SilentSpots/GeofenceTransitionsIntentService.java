@@ -1,10 +1,17 @@
 package csc415.finalProject.SilentSpots;
 
 import android.app.IntentService;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
@@ -24,6 +31,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
     FirebaseAuth fireauth;
     String user;
     CollectionReference storage;
+    public static final String CHANNEL_ID = "channel_01";
 
     public GeofenceTransitionsIntentService() {
         super("None");
@@ -102,8 +110,54 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     }
                 });
             }
+            String notificationString = getNotificationString(transition);
+            notifyUser(notificationString);
         } else {
             Log.e(TAG, "error");
+        }
+    }
+
+    private void notifyUser(String notificationDetails) {
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // Oreo requires channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence appName = getString(R.string.app_name);
+            NotificationChannel mChannel =
+                    new NotificationChannel(CHANNEL_ID, appName, NotificationManager.IMPORTANCE_DEFAULT);
+            mNotificationManager.createNotificationChannel(mChannel);
+        }
+        Intent notificationIntent = new Intent(getApplicationContext(), ListActivity.class);
+
+        TaskStackBuilder taskStack = TaskStackBuilder.create(this);
+        taskStack.addParentStack(ListActivity.class);
+        taskStack.addNextIntent(notificationIntent);
+        PendingIntent notificationPendingIntent =
+                taskStack.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+        builder.setSmallIcon(R.mipmap.ic_launcher_round)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                        R.mipmap.ic_launcher))
+                .setContentTitle(notificationDetails)
+                .setContentText(getString(R.string.general_notification_text))
+                .setContentIntent(notificationPendingIntent);
+
+        // channel id for Oreo
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder.setChannelId(CHANNEL_ID);
+        }
+        builder.setAutoCancel(true);
+        mNotificationManager.notify(0, builder.build());
+    }
+
+    private String getNotificationString(int transition) {
+        switch (transition) {
+            case Geofence.GEOFENCE_TRANSITION_ENTER:
+                return getString(R.string.DND_radius_entered);
+            case Geofence.GEOFENCE_TRANSITION_EXIT:
+                return getString(R.string.DND_radius_exited);
+            default:
+                return getString(R.string.unknown_geofence_transition);
         }
     }
 }

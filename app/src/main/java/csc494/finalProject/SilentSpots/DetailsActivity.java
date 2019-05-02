@@ -140,6 +140,11 @@ public class DetailsActivity extends AppCompatActivity {
                             docRef.update("small", newVal);
                         });
                     }
+                    else {
+                        setNoVisibility();
+                        docRef.update("large", 0);
+                        docRef.update("small",0);
+                    }
                 }
             });
 
@@ -277,5 +282,12 @@ public class DetailsActivity extends AppCompatActivity {
         timerPicker.setVisibility(View.VISIBLE);
         timerPicker.setMinValue(1);
         timerPicker.setMaxValue(600);
+    }
+
+    private void setNoVisibility() {
+        alarmPicker = findViewById(R.id.alarmTimePicker);
+        alarmPicker.setVisibility(View.GONE);
+        timerPicker = findViewById(R.id.timerPicker);
+        timerPicker.setVisibility(View.GONE);
     }
 }

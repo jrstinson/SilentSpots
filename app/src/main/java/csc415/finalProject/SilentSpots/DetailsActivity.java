@@ -19,6 +19,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.Circle;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -36,6 +38,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 public class DetailsActivity extends AppCompatActivity {
@@ -85,6 +90,9 @@ public class DetailsActivity extends AppCompatActivity {
                     break;
                 case "Alarms":
                     rg.check(R.id.radioAlarms);
+                    break;
+                case "Media":
+                    rg.check(R.id.radioMedia);
                     break;
             }
             titleView.append(" " + document.get("title"));
@@ -145,7 +153,7 @@ public class DetailsActivity extends AppCompatActivity {
                         Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             } else {
                 try {
-                    startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
+                    startActivityForResult(new Intent(this, AddLocation.class),1 );
                 } catch (Exception ignored) {
                 }
             }
@@ -162,46 +170,58 @@ public class DetailsActivity extends AppCompatActivity {
 
     protected void onActivityResult(int request, int result, Intent data) {
         if (request == 1 && result == RESULT_OK) {
-            Place place = PlacePicker.getPlace(this, data);
-            Intent details = new Intent(this, DetailsActivity.class);
+            com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
 
-            //Dialogue box for Radius and Title
-            AlertDialog.Builder radius = new AlertDialog.Builder(DetailsActivity.this);
-            radius.setMessage("Set Title and Radius in meters")
-                    .setTitle("Input");
-            LinearLayout layout = new LinearLayout(this);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            final EditText input = new EditText(this);
-            input.setHint("Radius");
-            final EditText input2 = new EditText(this);
-            input2.setHint("Title");
-            layout.addView(input2);
-            layout.addView(input);
-            radius.setView(layout);
+            PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(this);
+            String placeID = data.getDataString();
+            List<com.google.android.libraries.places.api.model.Place.Field> placeFields = Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
 
-            radius.setPositiveButton("Ok", (dialog, whichButton) -> {
-                double value = Double.valueOf(input.getText().toString());
-                String value2 = input2.getText().toString();
-                Rule rule = new Rule();
-                rule.place = place.getId();
-                rule.title = value2;
-                rule.address = (String) place.getAddress();
-                rule.radius = value;
-                rule.setting = "None";
-                rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
-                storage.add(rule).addOnCompleteListener(task -> {
-                    details.putExtra("rule", task.getResult().getId());
-                    startActivity(details);
+            FetchPlaceRequest requestPlace = FetchPlaceRequest.builder(placeID, placeFields).build();
+
+            placesClient.fetchPlace(requestPlace).addOnSuccessListener((response) ->{
+                com.google.android.libraries.places.api.model.Place place = response.getPlace();
+                Log.println(Log.WARN, "addressTest", place.getAddress());
+                Log.println(Log.WARN, "latLangTest", place.getLatLng().toString());
+                Intent details = new Intent(this, DetailsActivity.class);
+
+                //Dialogue box for Radius and Title
+                AlertDialog.Builder radius = new AlertDialog.Builder(DetailsActivity.this);
+                radius.setMessage("Set Title and Radius in meters")
+                        .setTitle("Input");
+                LinearLayout layout = new LinearLayout(this);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                final EditText input = new EditText(this);
+                input.setHint("Radius");
+                final EditText input2 = new EditText(this);
+                input2.setHint("Title");
+                layout.addView(input2);
+                layout.addView(input);
+                radius.setView(layout);
+
+                radius.setPositiveButton("Ok", (dialog, whichButton) -> {
+                    double value = Double.valueOf(input.getText().toString());
+                    String value2 = input2.getText().toString();
+                    Rule rule = new Rule();
+                    rule.place = place.getId();
+                    rule.title = value2;
+                    rule.address = (String) place.getAddress();
+                    rule.radius = value;
+                    rule.setting = "None";
+                    rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
+                    storage.add(rule).addOnCompleteListener(task -> {
+                        details.putExtra("rule", task.getResult().getId());
+                        startActivity(details);
+                    });
                 });
+
+                radius.setNegativeButton("Cancel", (dialog, whichButton) -> {
+                    // Canceled.
+                });
+                radius.show();
+            }).addOnFailureListener((exception) ->{
+
             });
 
-            radius.setNegativeButton("Cancel", (dialog, whichButton) -> {
-                // Canceled.
-            });
-            radius.show();
-        } else if (request == 2 && result == RESULT_OK) {
-            Place place = PlacePicker.getPlace(this, data);
-            // todo update current details activity
         }
     }
 }

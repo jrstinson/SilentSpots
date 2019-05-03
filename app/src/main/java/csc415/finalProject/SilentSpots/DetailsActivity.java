@@ -2,28 +2,27 @@ package csc415.finalProject.SilentSpots;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
-import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBufferResponse;
@@ -32,39 +31,55 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.Arrays;
 import java.util.List;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 
 public class DetailsActivity extends AppCompatActivity {
-    GoogleMap map; // noninteractive, displays single marker
+    GoogleMap map; // non-interactive, displays single marker
     TextView titleView;
     TextView addressView;
     TextView radiusView;
+    Button timerPicker;
+    Button alarmPicker;
     RadioGroup rg;
+    RadioGroup rg2;
     double radius;
     FirebaseFirestore firestore;
     FirebaseAuth fireauth;
     String user;
     CollectionReference storage;
+    DialogFragment newFragment;
+    NumberPickerFragment timerFragment;
+    private static final int PLACE_PICKER_ACCESS_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
+        com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "YOUR_API_KEY");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         titleView = findViewById(R.id.title);
         addressView = findViewById(R.id.address);
         radiusView = findViewById(R.id.radius);
         rg = findViewById(R.id.radioGroup);
+        rg2 = findViewById(R.id.radioGroup2);
         SupportMapFragment fragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         Intent startingIntent = getIntent();
 
@@ -96,6 +111,23 @@ public class DetailsActivity extends AppCompatActivity {
                     rg.check(R.id.radioMedia);
                     break;
             }
+            switch (document.get("clock").toString()) {
+                case "None":
+                    rg2.check(R.id.radio_none2);
+                    break;
+                case "Alarm":
+                    rg2.check(R.id.radioAlarm);
+                    setAlarmVisibility();
+                    newFragment = new TimePickerFragment();
+                    newFragment.show(getSupportFragmentManager(), "timePicker");
+                    break;
+                case "Timer":
+                    rg2.check(R.id.radioTimer);
+                    newFragment = new TimePickerFragment();
+                    newFragment.show(getSupportFragmentManager(), "timePicker");
+                    setTimerVisibility();
+                    break;
+            }
             titleView.append(" " + document.get("title"));
             addressView.append(" " + document.get("address"));
             radiusView.append(" " + document.get("radius"));
@@ -108,11 +140,33 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             });
 
+            rg2.setOnCheckedChangeListener((group, checkedId) -> {
+                RadioButton radioButton = group.findViewById(checkedId);
+                if (null != radioButton) {
+                    docRef.update("clock", radioButton.getTag());
+                    if (checkedId==R.id.radioAlarm) {
+                        setAlarmVisibility();
+                        newFragment = new TimePickerFragment();
+                        newFragment.show(getSupportFragmentManager(), "timePicker");
+                    }
+                    else if (checkedId==R.id.radioTimer){
+                        setTimerVisibility();
+                        newFragment = new TimePickerFragment();
+                        newFragment.show(getSupportFragmentManager(), "timePicker");
+                    }
+                    else {
+                        setNoVisibility();
+                        docRef.update("large", 0);
+                        docRef.update("small",0);
+                    }
+                }
+            });
+
             fragment.getMapAsync(map -> {
                 this.map = map;
                 String place = document.get("place").toString();
                 List<com.google.android.libraries.places.api.model.Place.Field> placeFields = Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
-                com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
+                com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "YOUR_API_KEY");
 
                 PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(this);
                 FetchPlaceRequest requestPlace = FetchPlaceRequest.builder(place, placeFields).build();
@@ -173,9 +227,27 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
+    @AfterPermissionGranted(PLACE_PICKER_ACCESS_CODE)
+    private void showPlacePicker() {
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+
+        if (EasyPermissions.hasPermissions(this, permissions)) {
+            try {
+                startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
+            } catch (Exception ignored) {
+                Log.println(Log.WARN, "MapActivity", ignored.getLocalizedMessage());
+            }
+        } else {
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, PLACE_PICKER_ACCESS_CODE, permissions)
+                            .build()
+            );
+        }
+    }
+
     protected void onActivityResult(int request, int result, Intent data) {
         if (request == 1 && result == RESULT_OK) {
-            com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
+            com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "YOUR_API_KEY");
 
             PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(this);
             String placeID = data.getDataString();
@@ -212,6 +284,9 @@ public class DetailsActivity extends AppCompatActivity {
                     rule.address = (String) place.getAddress();
                     rule.radius = value;
                     rule.setting = "None";
+                    rule.clock = "None";
+                    rule.large = 0;
+                    rule.small = 0;
                     rule.coordinates = new GeoPoint(place.getLatLng().latitude, place.getLatLng().longitude);
                     storage.add(rule).addOnCompleteListener(task -> {
                         details.putExtra("rule", task.getResult().getId());
@@ -228,5 +303,33 @@ public class DetailsActivity extends AppCompatActivity {
             });
 
         }
+    }
+    private void setAlarmVisibility(){
+        timerPicker = findViewById(R.id.timerPicker);
+        timerPicker.setVisibility(View.GONE);
+        alarmPicker = findViewById(R.id.alarmTimePicker);
+        alarmPicker.setVisibility(View.VISIBLE);
+    }
+
+    private void setTimerVisibility() {
+        alarmPicker = findViewById(R.id.alarmTimePicker);
+        alarmPicker.setVisibility(View.GONE);
+        timerPicker = findViewById(R.id.timerPicker);
+        timerPicker.setVisibility(View.VISIBLE);
+    }
+
+    private void setNoVisibility() {
+        alarmPicker = findViewById(R.id.alarmTimePicker);
+        alarmPicker.setVisibility(View.GONE);
+        timerPicker = findViewById(R.id.timerPicker);
+        timerPicker.setVisibility(View.GONE);
+    }
+    public void showTimePickerDialog(View v) {
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "timePicker");
+    }
+    public void showNumberPickerDialog(View v) {
+        NumberPickerFragment newFragment = new NumberPickerFragment();
+        newFragment.show();
     }
 }

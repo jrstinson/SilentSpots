@@ -31,35 +31,30 @@ TODO: figure out how to allow messages and calls from starred contacts at the sa
 
  */
 
-
 package csc415.finalProject.SilentSpots;
 
 import android.annotation.TargetApi;
 import android.app.NotificationManager;
-import android.util.Log;
-
+import android.content.Context;
+import android.content.Intent;
+import android.provider.AlarmClock;
 
 class DoNotDisturbToggles {
 
-
     @TargetApi(23)
     static void fullDND(boolean isChecked, NotificationManager manager) {
-
         if (isChecked) {
-
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
         } else {
-
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
         }
     }
 
     @TargetApi(23)
     static void alarmsDND(boolean isChecked, NotificationManager manager) {
-
         NotificationManager.Policy policy = new NotificationManager.Policy(NotificationManager.Policy.PRIORITY_CATEGORY_ALARMS, 0, 0);
-        if (isChecked) {
 
+        if (isChecked) {
             manager.setNotificationPolicy(policy);
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
         } else {
@@ -69,7 +64,6 @@ class DoNotDisturbToggles {
 
     @TargetApi(23)
     static void messageOnly(boolean isChecked, NotificationManager manager) {
-
         NotificationManager.Policy policy = new NotificationManager.Policy(NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES, 0, NotificationManager.Policy.PRIORITY_SENDERS_ANY);
 
         if (isChecked) {
@@ -82,7 +76,6 @@ class DoNotDisturbToggles {
 
     @TargetApi(28)
     static void mediaMode(boolean isChecked, NotificationManager manager) {
-
         NotificationManager.Policy policy = new NotificationManager.Policy(NotificationManager.Policy.PRIORITY_CATEGORY_MEDIA, 0, 0);
 
         if (isChecked) {
@@ -96,6 +89,7 @@ class DoNotDisturbToggles {
     @TargetApi(23)
     static void starredOnly(boolean isChecked, NotificationManager manager) {
         NotificationManager.Policy policy = new NotificationManager.Policy(NotificationManager.Policy.PRIORITY_CATEGORY_CALLS, NotificationManager.Policy.PRIORITY_SENDERS_STARRED, NotificationManager.Policy.PRIORITY_SENDERS_STARRED);
+
         if (isChecked) {
             manager.setNotificationPolicy(policy);
             manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
@@ -104,5 +98,24 @@ class DoNotDisturbToggles {
         }
     }
 
+    @TargetApi(23)
+    static void setTimer(String name, int time, Context context) {
+        Intent intent = new Intent(AlarmClock.ACTION_SET_TIMER)
+                .putExtra(AlarmClock.EXTRA_MESSAGE, name)
+                .putExtra(AlarmClock.EXTRA_LENGTH, time)
+                .putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+        if (intent.resolveActivity(context.getPackageManager()) != null)
+            context.startActivity(intent);
+    }
 
+    @TargetApi(23)
+    static void setAlarm(String name, int hour, int minutes, Context context) {
+        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM)
+                .putExtra(AlarmClock.EXTRA_MESSAGE, name)
+                .putExtra(AlarmClock.EXTRA_HOUR, hour)
+                .putExtra(AlarmClock.EXTRA_MINUTES, minutes)
+                .putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+        if (intent.resolveActivity(context.getPackageManager()) != null)
+            context.startActivity(intent);
+    }
 }

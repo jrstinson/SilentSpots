@@ -3,42 +3,30 @@ package csc415.finalProject.SilentSpots;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NavUtils;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.app.NotificationManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import com.google.android.gms.location.places.Place;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -47,12 +35,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
+
 public class MapActivity extends AppCompatActivity {
     GoogleMap map;
     FirebaseFirestore firestore;
     FirebaseAuth fireauth;
     String user;
     CollectionReference storage;
+    private static final int PLACE_PICKER_ACCESS_CODE = 102;
+    private static final int MAP_LOCATION_ENABLED_CODE = 103;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,35 +63,45 @@ public class MapActivity extends AppCompatActivity {
         fragment.getMapAsync(map -> {
             Context ctx = this;
             this.map = map;
-            storage.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        QuerySnapshot rules = task.getResult();
-                        List<Rule> ruleList = rules.toObjects(Rule.class);
-                        List<LatLng> latLngs = new ArrayList<>();
-                        if (!ruleList.isEmpty()) {
-                            for (Rule rule : ruleList) {
-                                latLngs.add(new LatLng(rule.coordinates.getLatitude(), rule.coordinates.getLongitude()));
-                                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngs.get(0), 16));
-                                if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION)
-                                        == PackageManager.PERMISSION_GRANTED) {
-                                    map.setMyLocationEnabled(true);
-                                }
-                                map.addCircle(new CircleOptions().center(new LatLng(rule.coordinates.getLatitude(), rule.coordinates.getLongitude()))
-                                        .radius(rule.radius)
-                                        .fillColor(0x220000FF)
-                                        .strokeColor(Color.BLACK)
-                                        .strokeWidth(1)).setClickable(true);
-                                
-                            }
+            storage.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    QuerySnapshot rules = task.getResult();
+                    List<Rule> ruleList = rules.toObjects(Rule.class);
+                    List<LatLng> latLngs = new ArrayList<>();
+                    if (!ruleList.isEmpty()) {
+                        for (Rule rule : ruleList) {
+                            latLngs.add(new LatLng(rule.coordinates.getLatitude(), rule.coordinates.getLongitude()));
+                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngs.get(0), 16));
+                            enableMapLocation();
+                            map.addCircle(new CircleOptions().center(new LatLng(rule.coordinates.getLatitude(), rule.coordinates.getLongitude()))
+                                    .radius(rule.radius)
+                                    .fillColor(0x220000FF)
+                                    .strokeColor(Color.BLACK)
+                                    .strokeWidth(1)).setClickable(true);
+
                         }
                     }
                 }
             });
-
-
         });
+    }
+
+    @AfterPermissionGranted(MAP_LOCATION_ENABLED_CODE)
+    private void enableMapLocation() {
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+
+        if (EasyPermissions.hasPermissions(this, permissions)) {
+            try {
+                map.setMyLocationEnabled(true);
+            } catch (SecurityException ignored) {
+                Log.println(Log.WARN, "MapActivity", ignored.getLocalizedMessage());
+            }
+        } else {
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, MAP_LOCATION_ENABLED_CODE, permissions)
+                            .build()
+            );
+        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,9 +113,9 @@ public class MapActivity extends AppCompatActivity {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id == android.R.id.home) {
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+        if (id == android.R.id.home) {
+            this.navigateUpTo(this.getParentActivityIntent());
+            return true;
         }
         if (id == R.id.add) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -133,9 +137,27 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+    @AfterPermissionGranted(PLACE_PICKER_ACCESS_CODE)
+    private void showPlacePicker() {
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+
+        if (EasyPermissions.hasPermissions(this, permissions)) {
+            try {
+                startActivityForResult(new PlacePicker.IntentBuilder().build(this), 1);
+            } catch (Exception ignored) {
+                Log.println(Log.WARN, "MapActivity", ignored.getLocalizedMessage());
+            }
+        } else {
+            EasyPermissions.requestPermissions(
+                    new PermissionRequest.Builder(this, PLACE_PICKER_ACCESS_CODE, permissions)
+                            .build()
+            );
+        }
+    }
+
     protected void onActivityResult(int request, int result, Intent data) {
         if (request == 1 && result == RESULT_OK) {
-            Places.initialize(getApplicationContext(), "AIzaSyCdcnMssDUkAhRDPYtuYToZVsaFv84N7Ag");
+            Places.initialize(getApplicationContext(), "YOUR_API_KEY");
 
             PlacesClient placesClient = Places.createClient(this);
             String placeID = data.getDataString();
@@ -187,7 +209,6 @@ public class MapActivity extends AppCompatActivity {
             }).addOnFailureListener((exception) ->{
 
             });
-
         }
     }
 }

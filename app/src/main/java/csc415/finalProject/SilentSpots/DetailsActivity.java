@@ -73,7 +73,7 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
+        com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "YOUR_API_KEY");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         titleView = findViewById(R.id.title);
         addressView = findViewById(R.id.address);
@@ -166,7 +166,7 @@ public class DetailsActivity extends AppCompatActivity {
                 this.map = map;
                 String place = document.get("place").toString();
                 List<com.google.android.libraries.places.api.model.Place.Field> placeFields = Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
-                com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
+                com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "YOUR_API_KEY");
 
                 PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(this);
                 FetchPlaceRequest requestPlace = FetchPlaceRequest.builder(place, placeFields).build();
@@ -247,7 +247,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     protected void onActivityResult(int request, int result, Intent data) {
         if (request == 1 && result == RESULT_OK) {
-            com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0");
+            com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), "YOUR_API_KEY");
 
             PlacesClient placesClient = com.google.android.libraries.places.api.Places.createClient(this);
             String placeID = data.getDataString();

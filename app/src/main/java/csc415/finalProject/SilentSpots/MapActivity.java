@@ -157,7 +157,7 @@ public class MapActivity extends AppCompatActivity {
 
     protected void onActivityResult(int request, int result, Intent data) {
         if (request == 1 && result == RESULT_OK) {
-            Places.initialize(getApplicationContext(), "AIzaSyCdcnMssDUkAhRDPYtuYToZVsaFv84N7Ag");
+            Places.initialize(getApplicationContext(), "YOUR_API_KEY");
 
             PlacesClient placesClient = Places.createClient(this);
             String placeID = data.getDataString();

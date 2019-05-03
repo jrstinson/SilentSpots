@@ -63,7 +63,7 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        Places.initialize(getApplicationContext(), "AIzaSyCdcnMssDUkAhRDPYtuYToZVsaFv84N7Ag");
+        Places.initialize(getApplicationContext(), "YOUR_API_KEY");
 
         PlacesClient placesClient = Places.createClient(this);
 
@@ -126,7 +126,7 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
             BigDecimal lng = new BigDecimal(currentLatLng.longitude).setScale(4, RoundingMode.HALF_UP);
 
 
-            String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.doubleValue() + "," + lng.doubleValue() + "&key=AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0";
+            String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.doubleValue() + "," + lng.doubleValue() + "&key=YOUR_API_KEY";
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
                 try {
@@ -160,7 +160,7 @@ public class AddLocation extends FragmentActivity implements OnMapReadyCallback 
             BigDecimal lng = new BigDecimal(latLng.longitude).setScale(4, RoundingMode.HALF_UP);
             LatLng coarseLatLng = new LatLng(lat.doubleValue(), lng.doubleValue());
 
-            String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.doubleValue() + "," + lng.doubleValue() + "&key=AIzaSyBLmMc3Orkr-IpcHanxaZrCcJ_JWpULFc0";
+            String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.doubleValue() + "," + lng.doubleValue() + "&key=YOUR_API_KEY";
             Log.println(Log.ERROR, "VolleyError", url);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
                 try {
